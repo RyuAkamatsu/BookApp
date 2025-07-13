@@ -8,6 +8,7 @@ import {
     Dimensions,
     ActivityIndicator,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, Image, RefreshCw, CircleCheck as CheckCircle, BookOpen } from 'lucide-react-native';
@@ -29,6 +30,7 @@ export default function CameraTab() {
     const [libraries, setLibraries] = useState<any[]>([]);
     const [showRecognisedBooksModal, setShowRecognisedBooksModal] = useState(false);
     const cameraRef = useRef<CameraView>(null);
+    const insets = useSafeAreaInsets();
 
     useEffect(() => {
         loadLibraries();
@@ -176,8 +178,8 @@ export default function CameraTab() {
     };
 
     return (
-        <View style={ styles.container }>
-            <View style={ styles.header }>
+        <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+            <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
                 <Text style={ styles.headerTitle }>Bookshelf Scanner</Text>
                 <Text style={ styles.headerSubtitle }>
                     Point your camera at a bookshelf to identify books
@@ -211,7 +213,7 @@ export default function CameraTab() {
                 </View>
             )}
 
-            <View style={ styles.controls }>
+            <View style={[styles.controls, { marginBottom: insets.bottom + 20 }]}>
                 <TouchableOpacity
                     style={ styles.secondaryButton }
                     onPress={ pickImage }
@@ -243,7 +245,7 @@ export default function CameraTab() {
                 </TouchableOpacity>
             </View>
 
-            <View style={ styles.manualAddSection }>
+            <View style={[styles.manualAddSection, { marginBottom: insets.bottom + 10 }]}>
                 <TouchableOpacity
                     style={ styles.manualAddButton }
                     onPress={ () => router.push('/manual-book-lookup' as any) }

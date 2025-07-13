@@ -7,6 +7,7 @@ import {
     ScrollView,
     Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { User, Settings, CircleHelp as HelpCircle, Star, Share, BookOpen, Camera, Smartphone, LogOut, UserPlus, LogIn, Sun, Moon, Monitor } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
 import { logoutUser } from '@/utils/firebase';
@@ -18,6 +19,7 @@ export default function ProfileTab() {
     const { user, setUser } = useAuth();
     const { theme, themeMode, updateThemeMode, isDark } = useTheme();
     const [showCompleteRegistration, setShowCompleteRegistration] = useState(false);
+    const insets = useSafeAreaInsets();
 
     useEffect(() => {
         const checkRegistrationStatus = async () => {
@@ -132,8 +134,24 @@ export default function ProfileTab() {
     ];
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} showsVerticalScrollIndicator={ false }>
-            <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
+        <ScrollView 
+            style={[
+                styles.container, 
+                { 
+                    backgroundColor: theme.colors.background,
+                    paddingBottom: insets.bottom + 20 // Add extra padding for Android navigation
+                }
+            ]} 
+            showsVerticalScrollIndicator={ false }
+        >
+            <View style={[
+                styles.header, 
+                { 
+                    backgroundColor: theme.colors.surface, 
+                    borderBottomColor: theme.colors.border,
+                    paddingTop: insets.top + 20 // Account for status bar
+                }
+            ]}>
                 <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>Profile</Text>
             </View>
 

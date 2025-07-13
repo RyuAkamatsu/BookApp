@@ -9,6 +9,7 @@ import {
     Dimensions,
     RefreshControl,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Book, Search, Filter, Library, CircleCheck as CheckCircle, Circle, BookmarkPlus } from 'lucide-react-native';
 import { database, BookRecord } from '@/utils/database';
@@ -28,6 +29,7 @@ export default function LibraryTab() {
     const [selectedLibrary, setSelectedLibrary] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const { newBooks, selectedLibrary: paramLibrary } = useLocalSearchParams();
+    const insets = useSafeAreaInsets();
 
     useEffect(() => {
         loadData();
@@ -164,7 +166,7 @@ export default function LibraryTab() {
     );
 
     const renderHeader = () => (
-        <View style={ styles.header }>
+        <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
             <View style={ styles.headerContent }>
                 <Text style={ styles.headerTitle }>
                     {selectedLibrary || 'All Libraries'}
@@ -224,7 +226,7 @@ export default function LibraryTab() {
     );
 
     return (
-        <View style={ styles.container }>
+        <View style={[styles.container, { paddingBottom: insets.bottom }]}>
             {renderHeader()}
             {libraries.length > 0 && renderLibraryFilter()}
       
@@ -236,7 +238,7 @@ export default function LibraryTab() {
                     renderItem={ renderBookCard }
                     keyExtractor={ item => item.id }
                     numColumns={ 2 }
-                    contentContainerStyle={ styles.listContainer }
+                    contentContainerStyle={[styles.listContainer, { paddingBottom: insets.bottom + 20 }]}
                     columnWrapperStyle={ styles.row }
                     showsVerticalScrollIndicator={ false }
                     refreshControl={

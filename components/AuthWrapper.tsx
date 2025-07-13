@@ -32,33 +32,12 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     }, []);
 
     useEffect(() => {
-        if (!loading && isFirstLoad !== null) {
-            if (!user) {
-                // User is not authenticated
-                if (isFirstLoad) {
-                    // First app load, redirect to register screen
-                    if (pathname === '/(tabs)/profile' || pathname === '/(tabs)/profile/index') {
-                        router.replace('/(tabs)/profile/register' as any);
-                    }
-                } else if (hasSkippedRegistration) {
-                    // User skipped registration, allow access to main app
-                    if (pathname === '/(tabs)/profile/login' || pathname === '/(tabs)/profile/register') {
-                        router.replace('/(tabs)/index' as any);
-                    }
-                } else {
-                    // Not first load and hasn't skipped, redirect to login
-                    if (pathname !== '/(tabs)/profile/login' && pathname !== '/(tabs)/profile/register') {
-                        router.replace('/(tabs)/profile/login' as any);
-                    }
-                }
-            } else {
-                // User is authenticated, ensure they're on the main app
-                if (pathname === '/(tabs)/profile/login' || pathname === '/(tabs)/profile/register') {
-                    router.replace('/(tabs)/index' as any);
-                }
-            }
+        // User is not authenticated and is first load
+        if (!loading && !user && isFirstLoad) {
+            // First app load, redirect to register screen
+            router.replace('/(tabs)/profile/register' as any);
         }
-    }, [user, loading, pathname, isFirstLoad, hasSkippedRegistration]);
+    }, [user, loading, isFirstLoad]);
 
     if (loading) {
         return (
@@ -66,10 +45,6 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
                 <ActivityIndicator size="large" color="#1e40af" />
             </View>
         );
-    }
-
-    if (!user && pathname !== '/(tabs)/profile/login' && pathname !== '/(tabs)/profile/register' && !hasSkippedRegistration) {
-        return null; // Will redirect to login
     }
 
     return <>{children}</>;

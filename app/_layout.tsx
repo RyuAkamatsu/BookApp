@@ -11,8 +11,7 @@ export default function RootLayout() {
         <ThemeProvider>
             <AuthProvider>
                 <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="(tabs)/index" />
-                    <Stack.Screen name="+not-found" />
+                    <Stack.Screen name="(tabs)" />
                 </Stack>
                 <StatusBar style="auto" />
             </AuthProvider>
