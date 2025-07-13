@@ -1,23 +1,26 @@
 import { Tabs } from 'expo-router';
-import { Camera, BookOpen, User, BookmarkPlus } from 'lucide-react-native';
+import { Camera, BookOpen, User, BookmarkPlus, Search } from 'lucide-react-native';
 import AuthWrapper from '@/components/AuthWrapper';
+import { useTheme } from '@/utils/theme';
 
 export default function TabLayout() {
+  const { theme } = useTheme();
+  
   return (
     <AuthWrapper>
       <Tabs
       screenOptions={{
         headerShown            : false,
-        tabBarActiveTintColor  : '#8B4513',
-        tabBarInactiveTintColor: '#8D6E63',
+        tabBarActiveTintColor  : theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: '#FDF8F3',
+          backgroundColor: theme.colors.surface,
           borderTopWidth : 2,
-          borderTopColor : '#D7CCC8',
+          borderTopColor : theme.colors.border,
           paddingBottom  : 8,
           paddingTop     : 8,
           height         : 80,
-          shadowColor    : '#2D1810',
+          shadowColor    : theme.colors.textPrimary,
           shadowOffset   : { width: 0, height: -2 },
           shadowOpacity  : 0.1,
           shadowRadius   : 4,
@@ -53,6 +56,15 @@ export default function TabLayout() {
           title: 'To Read',
           tabBarIcon: ({ size, color }) => (
             <BookmarkPlus size={ size } color={ color } />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="manual-book-lookup"
+        options={{
+          title: 'Manual Lookup',
+          tabBarIcon: ({ size, color }) => (
+            <Search size={ size } color={ color } />
           ),
         }}
       />

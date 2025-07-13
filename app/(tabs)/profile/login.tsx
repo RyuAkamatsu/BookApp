@@ -39,7 +39,7 @@ export default function LoginScreen() {
                     Alert.alert('Sync Complete', syncResult.message);
                 }
         
-                router.replace('/(tabs)');
+                router.replace('/(tabs)/index');
             } else {
                 Alert.alert('Login Failed', result.error);
             }
@@ -50,8 +50,8 @@ export default function LoginScreen() {
         }
     };
 
-    const navigateToRegister = () => {
-        router.push('/register' as any);
+    const navigateBack = () => {
+        router.back();
     };
 
     return (
@@ -102,9 +102,8 @@ export default function LoginScreen() {
                         </TouchableOpacity>
 
                         <View style={ styles.footer }>
-                            <Text style={ styles.footerText }>Don't have an account? </Text>
-                            <TouchableOpacity onPress={ navigateToRegister }>
-                                <Text style={ styles.linkText }>Sign Up</Text>
+                            <TouchableOpacity onPress={ navigateBack }>
+                                <Text style={ styles.linkText }>Back to Profile</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

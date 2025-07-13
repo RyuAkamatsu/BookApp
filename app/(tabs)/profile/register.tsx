@@ -33,9 +33,44 @@ export default function RegisterScreen() {
         checkFirstLoadStatus();
     }, []);
 
+    const validateEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const validatePassword = (password: string): { isValid: boolean; message: string } => {
+        if (password.length < 8) {
+            return { isValid: false, message: 'Password must be at least 8 characters long' };
+        }
+        if (!/[A-Z]/.test(password)) {
+            return { isValid: false, message: 'Password must contain at least one uppercase letter' };
+        }
+        if (!/[a-z]/.test(password)) {
+            return { isValid: false, message: 'Password must contain at least one lowercase letter' };
+        }
+        if (!/\d/.test(password)) {
+            return { isValid: false, message: 'Password must contain at least one number' };
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            return { isValid: false, message: 'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)' };
+        }
+        return { isValid: true, message: '' };
+    };
+
     const handleRegister = async () => {
         if (!username || !email || !password || !confirmPassword) {
             Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            Alert.alert('Error', 'Please enter a valid email address');
+            return;
+        }
+
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.isValid) {
+            Alert.alert('Error', passwordValidation.message);
             return;
         }
 
@@ -44,12 +79,8 @@ export default function RegisterScreen() {
             return;
         }
 
-        if (password.length < 6) {
-            Alert.alert('Error', 'Password must be at least 6 characters long');
-            return;
-        }
-
         setLoading(true);
+
         try {
             const result = await registerUser(email, password, username);
             if (result.success && result.user) {
@@ -62,7 +93,7 @@ export default function RegisterScreen() {
                 } catch (error) {
                     console.error('Error removing skipped registration flag:', error);
                 }
-                router.replace('/(tabs)');
+                router.replace('/(tabs)/index');
             } else {
                 Alert.alert('Registration Failed', result.error);
             }
@@ -73,7 +104,7 @@ export default function RegisterScreen() {
         }
     };
 
-    const navigateToLogin = () => {
+    const navigateBack = () => {
         router.back();
     };
 
@@ -86,7 +117,7 @@ export default function RegisterScreen() {
         } catch (error) {
             console.error('Error marking skipped registration:', error);
         }
-        router.replace('/(tabs)');
+        router.replace('/(tabs)/index');
     };
 
     return (
@@ -109,13 +140,13 @@ export default function RegisterScreen() {
 
                     <View style={ styles.form }>
                         <View style={ styles.inputContainer }>
-                            <Text style={ styles.label }>Username</Text>
+                            <Text style={ styles.label }>Display Name</Text>
                             <TextInput
                                 style={ styles.input }
                                 value={ username }
                                 onChangeText={ setUsername }
-                                placeholder="Enter your username"
-                                autoCapitalize="none"
+                                placeholder="Enter your display name"
+                                autoCapitalize="words"
                                 autoCorrect={ false }
                             />
                         </View>
@@ -144,6 +175,9 @@ export default function RegisterScreen() {
                                 autoCapitalize="none"
                                 autoCorrect={ false }
                             />
+                            <Text style={ styles.passwordRequirements }>
+                                Password must be at least 8 characters with uppercase, lowercase, number, and special character
+                            </Text>
                         </View>
 
                         <View style={ styles.inputContainer }>
@@ -181,10 +215,18 @@ export default function RegisterScreen() {
 
                         <View style={ styles.footer }>
                             <Text style={ styles.footerText }>Already have an account? </Text>
-                            <TouchableOpacity onPress={ navigateToLogin }>
+                            <TouchableOpacity onPress={ () => router.push('/(tabs)/profile/login' as any) }>
                                 <Text style={ styles.linkText }>Sign In</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {!isFirstLoad && (
+                            <View style={ styles.backFooter }>
+                                <TouchableOpacity onPress={ navigateBack }>
+                                    <Text style={ styles.backLinkText }>Back to Profile</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
                     </View>
                 </View>
             </ScrollView>
@@ -288,5 +330,21 @@ const styles = StyleSheet.create({
         color     : '#6b7280',
         fontSize  : 16,
         fontWeight: '600',
+    },
+    backFooter: {
+        flexDirection : 'row',
+        justifyContent: 'center',
+        marginTop     : 16,
+    },
+    backLinkText: {
+        color     : '#6b7280',
+        fontSize  : 14,
+        fontWeight: '500',
+    },
+    passwordRequirements: {
+        fontSize    : 12,
+        color       : '#6b7280',
+        marginTop   : 4,
+        fontStyle   : 'italic',
     },
 });
