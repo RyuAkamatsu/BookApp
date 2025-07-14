@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
-import { Book, Search, Filter, Library, Star, BookmarkPlus, MoveHorizontal as MoreHorizontal } from 'lucide-react-native';
+import { Book, Search, Filter, Library, Star, BookmarkPlus, MoveHorizontal as MoreHorizontal, Camera } from 'lucide-react-native';
 import { database, BookRecord } from '@/utils/database';
 import { designSystem, commonStyles } from '@/utils/designSystem';
 
@@ -105,6 +105,10 @@ export default function LibraryTab() {
         });
     };
 
+    const handleScanPress = () => {
+        router.push('/(tabs)/index');
+    };
+
     const renderBookCard = ({ item }: { item: BookRecord }) => (
         <TouchableOpacity
             style={[commonStyles.card, styles.bookCard]}
@@ -177,6 +181,12 @@ export default function LibraryTab() {
                     </Text>
                 </View>
                 <View style={commonStyles.row}>
+                    <TouchableOpacity 
+                        style={[styles.headerButton, { marginRight: designSystem.spacing.md }]}
+                        onPress={handleScanPress}
+                    >
+                        <Camera size={20} color={designSystem.colors.textSecondary} />
+                    </TouchableOpacity>
                     <TouchableOpacity style={[styles.headerButton, { marginRight: designSystem.spacing.md }]}>
                         <Search size={20} color={designSystem.colors.textSecondary} />
                     </TouchableOpacity>
@@ -243,7 +253,7 @@ export default function LibraryTab() {
             </Text>
             <TouchableOpacity 
                 style={[commonStyles.primaryButton, styles.emptyStateButton]}
-                onPress={() => router.push('/(tabs)/index')}
+                onPress={handleScanPress}
             >
                 <Text style={commonStyles.primaryButtonText}>Scan Your First Book</Text>
             </TouchableOpacity>

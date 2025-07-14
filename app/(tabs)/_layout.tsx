@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Camera, BookOpen, User, BookmarkPlus, Search } from 'lucide-react-native';
+import { BookOpen, User, BookmarkPlus, Search } from 'lucide-react-native';
 import AuthWrapper from '@/components/AuthWrapper';
 import { useTheme } from '@/utils/theme';
 
@@ -37,15 +37,6 @@ export default function TabLayout() {
                     },
                 }}
             >
-                <Tabs.Screen
-                    name="index"
-                    options={{
-                        title: 'Scan',
-                        tabBarIcon: ({ size, color }) => (
-                            <Camera size={size} color={color} />
-                        )
-                    }}
-                />
                 <Tabs.Screen
                     name="library"
                     options={{
