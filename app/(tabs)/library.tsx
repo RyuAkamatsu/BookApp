@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
-import { Book, Search, Filter, Library, Star, BookmarkPlus, MoreHorizontal } from 'lucide-react-native';
+import { Book, Search, Filter, Library, Star, BookmarkPlus, MoveHorizontal as MoreHorizontal } from 'lucide-react-native';
 import { database, BookRecord } from '@/utils/database';
 
 const { width: screenWidth } = Dimensions.get('window');

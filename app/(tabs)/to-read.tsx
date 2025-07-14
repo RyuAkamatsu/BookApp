@@ -10,7 +10,7 @@ import {
     RefreshControl,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Book, Star, BookmarkMinus, MoreHorizontal, Filter, Search } from 'lucide-react-native';
+import { Book, Star, BookmarkMinus, MoveHorizontal as MoreHorizontal, Filter, Search } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { database, BookRecord } from '@/utils/database';
 
