@@ -11,11 +11,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
-import { Book, Search, Filter, Library, CircleCheck as CheckCircle, Circle, BookmarkPlus } from 'lucide-react-native';
+import { Book, Search, Filter, Library, Star, BookmarkPlus, MoreHorizontal } from 'lucide-react-native';
 import { database, BookRecord } from '@/utils/database';
 
 const { width: screenWidth } = Dimensions.get('window');
-const cardWidth = (screenWidth - 48) / 2;
+const cardWidth = (screenWidth - 60) / 2; // Account for padding and gap
 
 interface LibraryInfo {
   id: string;
@@ -39,7 +39,7 @@ export default function LibraryTab() {
         if (newBooks) {
             try {
                 const parsedBooks = JSON.parse(newBooks as string);
-                loadData(); // Reload all data to get updated counts
+                loadData();
             } catch (error) {
                 console.error('Error parsing new books:', error);
             }
@@ -83,7 +83,7 @@ export default function LibraryTab() {
     const toggleReadStatus = async (book: BookRecord) => {
         try {
             await database.updateBookReadStatus(book.id, !book.isRead);
-            await loadData(); // Refresh the list
+            await loadData();
         } catch (error) {
             console.error('Error updating read status:', error);
         }
@@ -92,7 +92,7 @@ export default function LibraryTab() {
     const toggleToReadStatus = async (book: BookRecord) => {
         try {
             await database.updateBookToReadStatus(book.id, !book.isToRead);
-            await loadData(); // Refresh the list
+            await loadData();
         } catch (error) {
             console.error('Error updating to-read status:', error);
         }
@@ -101,65 +101,67 @@ export default function LibraryTab() {
     const openBookDetails = (book: BookRecord) => {
         router.push({
             pathname: '/book-details',
-            params  : { bookId: book.id }
+            params: { bookId: book.id }
         });
     };
 
     const renderBookCard = ({ item }: { item: BookRecord }) => (
         <TouchableOpacity
-            style={ styles.bookCard }
-            activeOpacity={ 0.7 }
-            onPress={ () => openBookDetails(item) }
+            style={styles.bookCard}
+            activeOpacity={0.7}
+            onPress={() => openBookDetails(item)}
         >
-            <View style={ styles.bookCover }>
-                <Image source={{ uri: item.coverUrl }} style={ styles.coverImage } />
-                <View style={ styles.coverOverlay }>
-                    <Book size={ 20 } color="#ffffff" />
+            <View style={styles.bookCover}>
+                <Image source={{ uri: item.coverUrl }} style={styles.coverImage} />
+                <View style={styles.ratingOverlay}>
+                    <Star size={12} color="#F4B942" fill="#F4B942" />
+                    <Text style={styles.ratingText}>4.2</Text>
                 </View>
-                <View style={ styles.statusOverlay }>
-                    <TouchableOpacity
-                        style={ styles.statusButton }
-                        onPress={ () => toggleReadStatus(item) }
-                    >
-                        {item.isRead ? (
-                            <CheckCircle size={ 20 } color="#10b981" />
-                        ) : (
-                            <Circle size={ 20 } color="#ffffff" />
-                        )}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={ styles.statusButton }
-                        onPress={ () => toggleToReadStatus(item) }
-                    >
-                        <BookmarkPlus size={ 20 } color={ item.isToRead ? '#f59e0b' : '#ffffff' } />
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity
+                    style={styles.bookmarkButton}
+                    onPress={() => toggleToReadStatus(item)}
+                >
+                    <BookmarkPlus 
+                        size={16} 
+                        color={item.isToRead ? '#F4B942' : '#FFFFFF'} 
+                        fill={item.isToRead ? '#F4B942' : 'transparent'}
+                    />
+                </TouchableOpacity>
             </View>
-            <View style={ styles.bookInfo }>
-                <Text style={ styles.bookTitle } numberOfLines={ 2 }>
+            
+            <View style={styles.bookInfo}>
+                <Text style={styles.bookTitle} numberOfLines={2}>
                     {item.title}
                 </Text>
-                <Text style={ styles.bookAuthor } numberOfLines={ 1 }>
+                <Text style={styles.bookAuthor} numberOfLines={1}>
                     {item.author}
                 </Text>
-                {item.series && (
-                    <Text style={ styles.bookSeries } numberOfLines={ 1 }>
-                        {item.series}
-                    </Text>
+                
+                {item.genre && (
+                    <View style={styles.genreTag}>
+                        <Text style={styles.genreText}>{item.genre}</Text>
+                    </View>
                 )}
-                <View style={ styles.libraryTag }>
-                    <Library size={ 12 } color="#1e40af" />
-                    <Text style={ styles.libraryTagText }>{item.libraryName}</Text>
-                </View>
-                <View style={ styles.bookMetadata }>
-                    {item.genre && (
-                        <View style={ styles.genreTag }>
-                            <Text style={ styles.genreText }>{item.genre}</Text>
-                        </View>
-                    )}
-                    {item.publishedYear && (
-                        <Text style={ styles.yearText }>{item.publishedYear}</Text>
-                    )}
+                
+                <View style={styles.bookFooter}>
+                    <View style={styles.readStatus}>
+                        {item.isRead ? (
+                            <View style={styles.readBadge}>
+                                <Text style={styles.readBadgeText}>Read</Text>
+                            </View>
+                        ) : (
+                            <TouchableOpacity 
+                                style={styles.markReadButton}
+                                onPress={() => toggleReadStatus(item)}
+                            >
+                                <Text style={styles.markReadText}>Mark as Read</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                    
+                    <TouchableOpacity style={styles.moreButton}>
+                        <MoreHorizontal size={16} color="#8B7355" />
+                    </TouchableOpacity>
                 </View>
             </View>
         </TouchableOpacity>
@@ -167,61 +169,84 @@ export default function LibraryTab() {
 
     const renderHeader = () => (
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-            <View style={ styles.headerContent }>
-                <Text style={ styles.headerTitle }>
-                    {selectedLibrary || 'All Libraries'}
-                </Text>
-                <Text style={ styles.headerSubtitle }>
-                    {books.length} book{books.length !== 1 ? 's' : ''} recognised
-                </Text>
-            </View>
-            <View style={ styles.headerActions }>
-                <TouchableOpacity style={ styles.headerButton }>
-                    <Search size={ 20 } color="#6b7280" />
-                </TouchableOpacity>
-                <TouchableOpacity style={ styles.headerButton }>
-                    <Filter size={ 20 } color="#6b7280" />
-                </TouchableOpacity>
+            <View style={styles.headerTop}>
+                <View style={styles.headerContent}>
+                    <Text style={styles.headerTitle}>My Books</Text>
+                    <Text style={styles.headerSubtitle}>
+                        {books.length} book{books.length !== 1 ? 's' : ''} in your library
+                    </Text>
+                </View>
+                <View style={styles.headerActions}>
+                    <TouchableOpacity style={styles.headerButton}>
+                        <Search size={20} color="#8B7355" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.headerButton}>
+                        <Filter size={20} color="#8B7355" />
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
 
     const renderLibraryFilter = () => (
-        <View style={ styles.filterSection }>
+        <View style={styles.filterSection}>
             <FlatList
                 horizontal
-                data={ [{ id: 'all', name: 'All Libraries', bookCount: books.length }, ...libraries] }
-                renderItem={ ({ item }) => (
+                data={[{ id: 'all', name: 'All Books', bookCount: books.length }, ...libraries]}
+                renderItem={({ item }) => (
                     <TouchableOpacity
-                        style={ [
+                        style={[
                             styles.filterChip,
                             (item.id === 'all' ? !selectedLibrary : selectedLibrary === item.name) && styles.activeFilterChip,
-                        ] }
-                        onPress={ () => handleLibraryFilter(item.id === 'all' ? null : item.name) }
+                        ]}
+                        onPress={() => handleLibraryFilter(item.id === 'all' ? null : item.name)}
                     >
-                        <Text style={ [
+                        <Library size={16} color={
+                            (item.id === 'all' ? !selectedLibrary : selectedLibrary === item.name) 
+                                ? '#FFFFFF' 
+                                : '#00635D'
+                        } />
+                        <Text style={[
                             styles.filterChipText,
                             (item.id === 'all' ? !selectedLibrary : selectedLibrary === item.name) && styles.activeFilterChipText,
-                        ] }
-                        >
-                            {item.name} ({item.bookCount})
+                        ]}>
+                            {item.name}
                         </Text>
+                        <View style={[
+                            styles.filterChipBadge,
+                            (item.id === 'all' ? !selectedLibrary : selectedLibrary === item.name) && styles.activeFilterChipBadge,
+                        ]}>
+                            <Text style={[
+                                styles.filterChipBadgeText,
+                                (item.id === 'all' ? !selectedLibrary : selectedLibrary === item.name) && styles.activeFilterChipBadgeText,
+                            ]}>
+                                {item.bookCount}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
-                ) }
-                keyExtractor={ item => item.id }
-                showsHorizontalScrollIndicator={ false }
-                contentContainerStyle={ styles.filterList }
+                )}
+                keyExtractor={item => item.id}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filterList}
             />
         </View>
     );
 
     const renderEmptyState = () => (
-        <View style={ styles.emptyState }>
-            <Book size={ 64 } color="#d1d5db" />
-            <Text style={ styles.emptyTitle }>No Books Yet</Text>
-            <Text style={ styles.emptySubtitle }>
-                Take a photo of your bookshelf to start building your digital library
+        <View style={styles.emptyState}>
+            <View style={styles.emptyStateIcon}>
+                <Book size={48} color="#C0C0C0" />
+            </View>
+            <Text style={styles.emptyTitle}>No Books Yet</Text>
+            <Text style={styles.emptySubtitle}>
+                Start building your digital library by scanning books or adding them manually
             </Text>
+            <TouchableOpacity 
+                style={styles.emptyStateButton}
+                onPress={() => router.push('/(tabs)/index')}
+            >
+                <Text style={styles.emptyStateButtonText}>Scan Your First Book</Text>
+            </TouchableOpacity>
         </View>
     );
 
@@ -234,15 +259,15 @@ export default function LibraryTab() {
                 renderEmptyState()
             ) : (
                 <FlatList
-                    data={ books }
-                    renderItem={ renderBookCard }
-                    keyExtractor={ item => item.id }
-                    numColumns={ 2 }
+                    data={books}
+                    renderItem={renderBookCard}
+                    keyExtractor={item => item.id}
+                    numColumns={2}
                     contentContainerStyle={[styles.listContainer, { paddingBottom: insets.bottom + 20 }]}
-                    columnWrapperStyle={ styles.row }
-                    showsVerticalScrollIndicator={ false }
+                    columnWrapperStyle={styles.row}
+                    showsVerticalScrollIndicator={false}
                     refreshControl={
-                        <RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } />
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }
                 />
             )}
@@ -252,194 +277,270 @@ export default function LibraryTab() {
 
 const styles = StyleSheet.create({
     container: {
-        flex           : 1,
-        backgroundColor: '#f8fafc',
+        flex: 1,
+        backgroundColor: '#F9F7F4',
     },
     header: {
-        flexDirection    : 'row',
-        alignItems       : 'center',
-        justifyContent   : 'space-between',
-        paddingTop       : 60,
-        paddingHorizontal: 24,
-        paddingBottom    : 24,
-        backgroundColor  : '#ffffff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#e5e7eb',
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        backgroundColor: '#FFFFFF',
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
     },
-    headerContent: { flex: 1 },
-    headerTitle  : {
-        fontSize    : 28,
-        fontWeight  : '700',
-        color       : '#1f2937',
+    headerTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    headerContent: {
+        flex: 1,
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#382110',
         marginBottom: 4,
     },
     headerSubtitle: {
         fontSize: 16,
-        color   : '#6b7280',
+        color: '#8B7355',
     },
     headerActions: {
         flexDirection: 'row',
-        alignItems   : 'center',
-        gap          : 12,
+        alignItems: 'center',
+        gap: 12,
     },
     headerButton: {
-        width          : 40,
-        height         : 40,
-        borderRadius   : 20,
-        backgroundColor: '#f3f4f6',
-        alignItems     : 'center',
-        justifyContent : 'center',
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#F0F9F8',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     filterSection: {
-        backgroundColor  : '#ffffff',
-        paddingVertical  : 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e5e7eb',
+        backgroundColor: '#FFFFFF',
+        paddingVertical: 16,
+        marginBottom: 8,
     },
-    filterList: { paddingHorizontal: 24 },
+    filterList: {
+        paddingHorizontal: 20,
+    },
     filterChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical  : 8,
-        borderRadius     : 20,
-        backgroundColor  : '#f3f4f6',
-        marginRight      : 12,
+        paddingVertical: 10,
+        borderRadius: 20,
+        backgroundColor: '#F0F9F8',
+        marginRight: 12,
+        borderWidth: 1,
+        borderColor: '#E0F2F1',
+        gap: 6,
     },
-    activeFilterChip: { backgroundColor: '#1e40af' },
-    filterChipText  : {
-        fontSize  : 14,
+    activeFilterChip: {
+        backgroundColor: '#00635D',
+        borderColor: '#00635D',
+    },
+    filterChipText: {
+        fontSize: 14,
         fontWeight: '600',
-        color     : '#6b7280',
+        color: '#00635D',
     },
-    activeFilterChipText: { color: '#ffffff' },
-    listContainer       : { padding: 24 },
-    row                 : { justifyContent: 'space-between' },
-    bookCard            : {
-        width          : cardWidth,
-        backgroundColor: '#ffffff',
-        borderRadius   : 16,
-        marginBottom   : 24,
-        shadowColor    : '#000000',
-        shadowOffset   : {
-            width : 0,
-            height: 2,
-        },
+    activeFilterChipText: {
+        color: '#FFFFFF',
+    },
+    filterChipBadge: {
+        backgroundColor: '#E0F2F1',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 10,
+        minWidth: 20,
+        alignItems: 'center',
+    },
+    activeFilterChipBadge: {
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    filterChipBadgeText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#00635D',
+    },
+    activeFilterChipBadgeText: {
+        color: '#FFFFFF',
+    },
+    listContainer: {
+        padding: 20,
+    },
+    row: {
+        justifyContent: 'space-between',
+    },
+    bookCard: {
+        width: cardWidth,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius : 8,
-        elevation    : 4,
-        overflow     : 'hidden',
+        shadowRadius: 8,
+        elevation: 4,
+        overflow: 'hidden',
     },
     bookCover: {
-        width   : '100%',
-        height  : cardWidth * 1.2,
+        width: '100%',
+        height: cardWidth * 1.4,
         position: 'relative',
     },
     coverImage: {
-        width          : '100%',
-        height         : '100%',
-        backgroundColor: '#f3f4f6',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#F0F0F0',
     },
-    coverOverlay: {
-        position       : 'absolute',
-        top            : 12,
-        right          : 12,
-        width          : 32,
-        height         : 32,
-        borderRadius   : 16,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        alignItems     : 'center',
-        justifyContent : 'center',
+    ratingOverlay: {
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        paddingHorizontal: 6,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
     },
-    statusOverlay: {
-        position     : 'absolute',
-        top          : 12,
-        left         : 12,
-        flexDirection: 'column',
-        gap          : 8,
+    ratingText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '600',
     },
-    statusButton: {
-        width          : 32,
-        height         : 32,
-        borderRadius   : 16,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        alignItems     : 'center',
-        justifyContent : 'center',
+    bookmarkButton: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    bookInfo : { padding: 16 },
+    bookInfo: {
+        padding: 12,
+    },
     bookTitle: {
-        fontSize    : 16,
-        fontWeight  : '700',
-        color       : '#1f2937',
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#382110',
         marginBottom: 4,
-        lineHeight  : 22,
+        lineHeight: 20,
     },
     bookAuthor: {
-        fontSize    : 14,
-        color       : '#6b7280',
-        marginBottom: 6,
-    },
-    bookSeries: {
-        fontSize    : 12,
-        color       : '#1e40af',
-        fontWeight  : '600',
+        fontSize: 14,
+        color: '#8B7355',
         marginBottom: 8,
     },
-    libraryTag: {
-        flexDirection    : 'row',
-        alignItems       : 'center',
-        backgroundColor  : '#f0f9ff',
-        paddingHorizontal: 8,
-        paddingVertical  : 4,
-        borderRadius     : 6,
-        alignSelf        : 'flex-start',
-        marginBottom     : 12,
-    },
-    libraryTagText: {
-        fontSize  : 10,
-        color     : '#1e40af',
-        fontWeight: '600',
-        marginLeft: 4,
-    },
-    bookMetadata: {
-        flexDirection : 'row',
-        alignItems    : 'center',
-        justifyContent: 'space-between',
-    },
     genreTag: {
-        backgroundColor  : '#eff6ff',
+        alignSelf: 'flex-start',
+        backgroundColor: '#F0F9F8',
         paddingHorizontal: 8,
-        paddingVertical  : 4,
-        borderRadius     : 6,
-        flex             : 1,
-        marginRight      : 8,
-    },
-    genreText: {
-        fontSize  : 10,
-        color     : '#1e40af',
-        fontWeight: '600',
-        textAlign : 'center',
-    },
-    yearText: {
-        fontSize  : 12,
-        color     : '#9ca3af',
-        fontWeight: '500',
-    },
-    emptyState: {
-        flex             : 1,
-        alignItems       : 'center',
-        justifyContent   : 'center',
-        paddingHorizontal: 48,
-    },
-    emptyTitle: {
-        fontSize    : 24,
-        fontWeight  : '700',
-        color       : '#1f2937',
-        marginTop   : 24,
+        paddingVertical: 4,
+        borderRadius: 12,
         marginBottom: 12,
     },
+    genreText: {
+        fontSize: 12,
+        color: '#00635D',
+        fontWeight: '600',
+    },
+    bookFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    readStatus: {
+        flex: 1,
+    },
+    readBadge: {
+        backgroundColor: '#E8F5E8',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        alignSelf: 'flex-start',
+    },
+    readBadgeText: {
+        fontSize: 12,
+        color: '#2E7D32',
+        fontWeight: '600',
+    },
+    markReadButton: {
+        backgroundColor: '#F4B942',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        alignSelf: 'flex-start',
+    },
+    markReadText: {
+        fontSize: 12,
+        color: '#FFFFFF',
+        fontWeight: '600',
+    },
+    moreButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#F9F7F4',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyState: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 40,
+    },
+    emptyStateIcon: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#F0F0F0',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 24,
+    },
+    emptyTitle: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: '#382110',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
     emptySubtitle: {
-        fontSize  : 16,
-        color     : '#6b7280',
-        textAlign : 'center',
+        fontSize: 16,
+        color: '#8B7355',
+        textAlign: 'center',
         lineHeight: 24,
+        marginBottom: 32,
+    },
+    emptyStateButton: {
+        backgroundColor: '#00635D',
+        paddingHorizontal: 24,
+        paddingVertical: 16,
+        borderRadius: 12,
+        shadowColor: '#00635D',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    emptyStateButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '600',
     },
 });

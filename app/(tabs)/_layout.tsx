@@ -10,74 +10,69 @@ export default function TabLayout() {
         <AuthWrapper>
             <Tabs
                 screenOptions={{
-                    headerShown            : false,
-                    tabBarActiveTintColor  : theme.colors.primary,
-                    tabBarInactiveTintColor: theme.colors.textTertiary,
+                    headerShown: false,
+                    tabBarActiveTintColor: '#00635D',
+                    tabBarInactiveTintColor: '#8B7355',
                     tabBarStyle: {
-                        backgroundColor: theme.colors.surface,
-                        borderTopWidth : 2,
-                        borderTopColor : theme.colors.border,
-                        paddingBottom  : 30, // Increased for Android navigation buttons
-                        paddingTop     : 8,
-                        height         : 110, // Increased height to accommodate padding
-                        shadowColor    : theme.colors.textPrimary,
-                        shadowOffset   : { width: 0, height: -2 },
-                        shadowOpacity  : 0.1,
-                        shadowRadius   : 4,
-                        elevation      : 8,
+                        backgroundColor: '#FFFFFF',
+                        borderTopWidth: 0,
+                        paddingBottom: 30,
+                        paddingTop: 8,
+                        height: 110,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: -2 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 8,
+                        elevation: 8,
+                        borderTopLeftRadius: 24,
+                        borderTopRightRadius: 24,
                     },
                     tabBarLabelStyle: {
-                        fontSize  : 12,
+                        fontSize: 12,
                         fontWeight: '600',
-                        marginTop : 4,
+                        marginTop: 4,
+                    },
+                    tabBarItemStyle: {
+                        paddingVertical: 8,
                     },
                 }}
             >
                 <Tabs.Screen
                     name="index"
                     options={{
-                        title: 'Camera',
+                        title: 'Scan',
                         tabBarIcon: ({ size, color }) => (
-                            <Camera size={ size } color={ color } />
+                            <Camera size={size} color={color} />
                         )
                     }}
                 />
                 <Tabs.Screen
                     name="library"
                     options={{
-                        title: 'Library',
+                        title: 'My Books',
                         tabBarIcon: ({ size, color }) => (
-                            <BookOpen size={ size } color={ color } />
+                            <BookOpen size={size} color={color} />
                         )
                     }}
                 />
                 <Tabs.Screen
                     name="to-read"
                     options={{
-                        title: 'To Read',
+                        title: 'Want to Read',
                         tabBarIcon: ({ size, color }) => (
-                            <BookmarkPlus size={ size } color={ color } />
+                            <BookmarkPlus size={size} color={color} />
                         )
                     }}
                 />
                 <Tabs.Screen
                     name="manual-book-lookup"
                     options={{
-                    title: 'Manual Lookup',
+                        title: 'Search',
                         tabBarIcon: ({ size, color }) => (
-                            <Search size={ size } color={ color } />
+                            <Search size={size} color={color} />
                         )
                     }}
                 />
-                {/* <Tabs.Screen
-                    name="profile"
-                    options={{
-                    title: 'Profile',
-                        tabBarIcon: ({ size, color }) => (
-                            <User size={ size } color={ color } />
-                        )
-                    }}
-                /> */}
             </Tabs>
         </AuthWrapper>
     );
