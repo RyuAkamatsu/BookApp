@@ -11,11 +11,12 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
-import { Book, Search, Filter, Library, Star, BookmarkPlus, MoveHorizontal as MoreHorizontal } from 'lucide-react-native';
+import { Book, Search, Filter, Library, Star, BookmarkPlus, MoreHorizontal } from 'lucide-react-native';
 import { database, BookRecord } from '@/utils/database';
+import { designSystem, commonStyles } from '@/utils/designSystem';
 
 const { width: screenWidth } = Dimensions.get('window');
-const cardWidth = (screenWidth - 60) / 2; // Account for padding and gap
+const cardWidth = (screenWidth - (designSystem.spacing.xl * 2) - designSystem.spacing.md) / 2;
 
 interface LibraryInfo {
   id: string;
@@ -56,7 +57,6 @@ export default function LibraryTab() {
         try {
             const allLibraries = await database.getLibraries();
             setLibraries(allLibraries);
-      
             const allBooks = await database.getBooks(selectedLibrary || undefined);
             setBooks(allBooks);
         } catch (error) {
@@ -107,14 +107,14 @@ export default function LibraryTab() {
 
     const renderBookCard = ({ item }: { item: BookRecord }) => (
         <TouchableOpacity
-            style={styles.bookCard}
+            style={[commonStyles.card, styles.bookCard]}
             activeOpacity={0.7}
             onPress={() => openBookDetails(item)}
         >
             <View style={styles.bookCover}>
                 <Image source={{ uri: item.coverUrl }} style={styles.coverImage} />
                 <View style={styles.ratingOverlay}>
-                    <Star size={12} color="#F4B942" fill="#F4B942" />
+                    <Star size={12} color={designSystem.colors.accent} fill={designSystem.colors.accent} />
                     <Text style={styles.ratingText}>4.2</Text>
                 </View>
                 <TouchableOpacity
@@ -123,17 +123,17 @@ export default function LibraryTab() {
                 >
                     <BookmarkPlus 
                         size={16} 
-                        color={item.isToRead ? '#F4B942' : '#FFFFFF'} 
-                        fill={item.isToRead ? '#F4B942' : 'transparent'}
+                        color={item.isToRead ? designSystem.colors.accent : designSystem.colors.surface} 
+                        fill={item.isToRead ? designSystem.colors.accent : 'transparent'}
                     />
                 </TouchableOpacity>
             </View>
             
             <View style={styles.bookInfo}>
-                <Text style={styles.bookTitle} numberOfLines={2}>
+                <Text style={[commonStyles.subtitle, styles.bookTitle]} numberOfLines={2}>
                     {item.title}
                 </Text>
-                <Text style={styles.bookAuthor} numberOfLines={1}>
+                <Text style={[commonStyles.caption, styles.bookAuthor]} numberOfLines={1}>
                     {item.author}
                 </Text>
                 
@@ -143,7 +143,7 @@ export default function LibraryTab() {
                     </View>
                 )}
                 
-                <View style={styles.bookFooter}>
+                <View style={[commonStyles.spaceBetween, styles.bookFooter]}>
                     <View style={styles.readStatus}>
                         {item.isRead ? (
                             <View style={styles.readBadge}>
@@ -160,7 +160,7 @@ export default function LibraryTab() {
                     </View>
                     
                     <TouchableOpacity style={styles.moreButton}>
-                        <MoreHorizontal size={16} color="#8B7355" />
+                        <MoreHorizontal size={16} color={designSystem.colors.textSecondary} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -168,20 +168,20 @@ export default function LibraryTab() {
     );
 
     const renderHeader = () => (
-        <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-            <View style={styles.headerTop}>
-                <View style={styles.headerContent}>
-                    <Text style={styles.headerTitle}>My Books</Text>
-                    <Text style={styles.headerSubtitle}>
+        <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+            <View style={commonStyles.spaceBetween}>
+                <View style={{ flex: 1 }}>
+                    <Text style={commonStyles.headerTitle}>My Books</Text>
+                    <Text style={commonStyles.headerSubtitle}>
                         {books.length} book{books.length !== 1 ? 's' : ''} in your library
                     </Text>
                 </View>
-                <View style={styles.headerActions}>
-                    <TouchableOpacity style={styles.headerButton}>
-                        <Search size={20} color="#8B7355" />
+                <View style={commonStyles.row}>
+                    <TouchableOpacity style={[styles.headerButton, { marginRight: designSystem.spacing.md }]}>
+                        <Search size={20} color={designSystem.colors.textSecondary} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.headerButton}>
-                        <Filter size={20} color="#8B7355" />
+                        <Filter size={20} color={designSystem.colors.textSecondary} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -203,8 +203,8 @@ export default function LibraryTab() {
                     >
                         <Library size={16} color={
                             (item.id === 'all' ? !selectedLibrary : selectedLibrary === item.name) 
-                                ? '#FFFFFF' 
-                                : '#00635D'
+                                ? designSystem.colors.surface 
+                                : designSystem.colors.primary
                         } />
                         <Text style={[
                             styles.filterChipText,
@@ -233,25 +233,25 @@ export default function LibraryTab() {
     );
 
     const renderEmptyState = () => (
-        <View style={styles.emptyState}>
+        <View style={[commonStyles.center, styles.emptyState]}>
             <View style={styles.emptyStateIcon}>
-                <Book size={48} color="#C0C0C0" />
+                <Book size={48} color={designSystem.colors.textMuted} />
             </View>
-            <Text style={styles.emptyTitle}>No Books Yet</Text>
-            <Text style={styles.emptySubtitle}>
+            <Text style={[commonStyles.title, styles.emptyTitle]}>No Books Yet</Text>
+            <Text style={[commonStyles.body, styles.emptySubtitle]}>
                 Start building your digital library by scanning books or adding them manually
             </Text>
             <TouchableOpacity 
-                style={styles.emptyStateButton}
+                style={[commonStyles.primaryButton, styles.emptyStateButton]}
                 onPress={() => router.push('/(tabs)/index')}
             >
-                <Text style={styles.emptyStateButtonText}>Scan Your First Book</Text>
+                <Text style={commonStyles.primaryButtonText}>Scan Your First Book</Text>
             </TouchableOpacity>
         </View>
     );
 
     return (
-        <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+        <View style={[commonStyles.container, { paddingBottom: insets.bottom }]}>
             {renderHeader()}
             {libraries.length > 0 && renderLibraryFilter()}
       
@@ -263,7 +263,7 @@ export default function LibraryTab() {
                     renderItem={renderBookCard}
                     keyExtractor={item => item.id}
                     numColumns={2}
-                    contentContainerStyle={[styles.listContainer, { paddingBottom: insets.bottom + 20 }]}
+                    contentContainerStyle={[styles.listContainer, { paddingBottom: insets.bottom + designSystem.spacing.xl }]}
                     columnWrapperStyle={styles.row}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
@@ -276,90 +276,51 @@ export default function LibraryTab() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F9F7F4',
-    },
-    header: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        backgroundColor: '#FFFFFF',
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    headerTop: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    headerContent: {
-        flex: 1,
-    },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#382110',
-        marginBottom: 4,
-    },
-    headerSubtitle: {
-        fontSize: 16,
-        color: '#8B7355',
-    },
-    headerActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
     headerButton: {
         width: 44,
         height: 44,
-        borderRadius: 22,
-        backgroundColor: '#F0F9F8',
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: designSystem.colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
     },
     filterSection: {
-        backgroundColor: '#FFFFFF',
-        paddingVertical: 16,
-        marginBottom: 8,
+        backgroundColor: designSystem.colors.surface,
+        paddingVertical: designSystem.spacing.lg,
+        marginBottom: designSystem.spacing.sm,
     },
     filterList: {
-        paddingHorizontal: 20,
+        paddingHorizontal: designSystem.spacing.xl,
     },
     filterChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 20,
-        backgroundColor: '#F0F9F8',
-        marginRight: 12,
+        paddingHorizontal: designSystem.spacing.lg,
+        paddingVertical: designSystem.spacing.md,
+        borderRadius: designSystem.borderRadius.xl,
+        backgroundColor: designSystem.colors.surfaceSecondary,
+        marginRight: designSystem.spacing.md,
         borderWidth: 1,
-        borderColor: '#E0F2F1',
-        gap: 6,
+        borderColor: designSystem.colors.border,
+        gap: designSystem.spacing.xs,
     },
     activeFilterChip: {
-        backgroundColor: '#00635D',
-        borderColor: '#00635D',
+        backgroundColor: designSystem.colors.primary,
+        borderColor: designSystem.colors.primary,
     },
     filterChipText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#00635D',
+        fontSize: designSystem.typography.fontSize.sm,
+        fontWeight: designSystem.typography.fontWeight.semibold,
+        color: designSystem.colors.primary,
     },
     activeFilterChipText: {
-        color: '#FFFFFF',
+        color: designSystem.colors.surface,
     },
     filterChipBadge: {
-        backgroundColor: '#E0F2F1',
-        paddingHorizontal: 6,
+        backgroundColor: designSystem.colors.border,
+        paddingHorizontal: designSystem.spacing.xs,
         paddingVertical: 2,
-        borderRadius: 10,
+        borderRadius: designSystem.borderRadius.sm,
         minWidth: 20,
         alignItems: 'center',
     },
@@ -367,29 +328,23 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
     },
     filterChipBadgeText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#00635D',
+        fontSize: designSystem.typography.fontSize.xs,
+        fontWeight: designSystem.typography.fontWeight.semibold,
+        color: designSystem.colors.primary,
     },
     activeFilterChipBadgeText: {
-        color: '#FFFFFF',
+        color: designSystem.colors.surface,
     },
     listContainer: {
-        padding: 20,
+        padding: designSystem.spacing.xl,
     },
     row: {
         justifyContent: 'space-between',
     },
     bookCard: {
         width: cardWidth,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
+        marginBottom: designSystem.spacing.xl,
+        padding: 0,
         overflow: 'hidden',
     },
     bookCover: {
@@ -400,147 +355,119 @@ const styles = StyleSheet.create({
     coverImage: {
         width: '100%',
         height: '100%',
-        backgroundColor: '#F0F0F0',
+        backgroundColor: designSystem.colors.surfaceSecondary,
     },
     ratingOverlay: {
         position: 'absolute',
-        top: 8,
-        left: 8,
+        top: designSystem.spacing.sm,
+        left: designSystem.spacing.sm,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        paddingHorizontal: 6,
-        paddingVertical: 4,
-        borderRadius: 12,
-        gap: 4,
+        paddingHorizontal: designSystem.spacing.xs,
+        paddingVertical: designSystem.spacing.xs,
+        borderRadius: designSystem.borderRadius.md,
+        gap: designSystem.spacing.xs,
     },
     ratingText: {
-        color: '#FFFFFF',
-        fontSize: 12,
-        fontWeight: '600',
+        color: designSystem.colors.surface,
+        fontSize: designSystem.typography.fontSize.xs,
+        fontWeight: designSystem.typography.fontWeight.semibold,
     },
     bookmarkButton: {
         position: 'absolute',
-        top: 8,
-        right: 8,
+        top: designSystem.spacing.sm,
+        right: designSystem.spacing.sm,
         width: 32,
         height: 32,
-        borderRadius: 16,
+        borderRadius: designSystem.borderRadius.lg,
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
         alignItems: 'center',
         justifyContent: 'center',
     },
     bookInfo: {
-        padding: 12,
+        padding: designSystem.spacing.md,
     },
     bookTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#382110',
-        marginBottom: 4,
-        lineHeight: 20,
+        marginBottom: designSystem.spacing.xs,
+        lineHeight: designSystem.typography.lineHeight.tight * designSystem.typography.fontSize.lg,
     },
     bookAuthor: {
-        fontSize: 14,
-        color: '#8B7355',
-        marginBottom: 8,
+        marginBottom: designSystem.spacing.sm,
     },
     genreTag: {
         alignSelf: 'flex-start',
-        backgroundColor: '#F0F9F8',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
-        marginBottom: 12,
+        backgroundColor: `${designSystem.colors.primary}15`,
+        paddingHorizontal: designSystem.spacing.sm,
+        paddingVertical: designSystem.spacing.xs,
+        borderRadius: designSystem.borderRadius.md,
+        marginBottom: designSystem.spacing.md,
     },
     genreText: {
-        fontSize: 12,
-        color: '#00635D',
-        fontWeight: '600',
+        fontSize: designSystem.typography.fontSize.xs,
+        color: designSystem.colors.primary,
+        fontWeight: designSystem.typography.fontWeight.semibold,
     },
     bookFooter: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        marginTop: designSystem.spacing.xs,
     },
     readStatus: {
         flex: 1,
     },
     readBadge: {
-        backgroundColor: '#E8F5E8',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
+        backgroundColor: `${designSystem.colors.success}15`,
+        paddingHorizontal: designSystem.spacing.sm,
+        paddingVertical: designSystem.spacing.xs,
+        borderRadius: designSystem.borderRadius.md,
         alignSelf: 'flex-start',
     },
     readBadgeText: {
-        fontSize: 12,
-        color: '#2E7D32',
-        fontWeight: '600',
+        fontSize: designSystem.typography.fontSize.xs,
+        color: designSystem.colors.success,
+        fontWeight: designSystem.typography.fontWeight.semibold,
     },
     markReadButton: {
-        backgroundColor: '#F4B942',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
+        backgroundColor: designSystem.colors.accent,
+        paddingHorizontal: designSystem.spacing.sm,
+        paddingVertical: designSystem.spacing.xs,
+        borderRadius: designSystem.borderRadius.md,
         alignSelf: 'flex-start',
     },
     markReadText: {
-        fontSize: 12,
-        color: '#FFFFFF',
-        fontWeight: '600',
+        fontSize: designSystem.typography.fontSize.xs,
+        color: designSystem.colors.surface,
+        fontWeight: designSystem.typography.fontWeight.semibold,
     },
     moreButton: {
         width: 32,
         height: 32,
-        borderRadius: 16,
-        backgroundColor: '#F9F7F4',
+        borderRadius: designSystem.borderRadius.lg,
+        backgroundColor: designSystem.colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
     },
     emptyState: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 40,
+        paddingHorizontal: designSystem.spacing['4xl'],
     },
     emptyStateIcon: {
         width: 80,
         height: 80,
-        borderRadius: 40,
-        backgroundColor: '#F0F0F0',
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: designSystem.colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 24,
+        marginBottom: designSystem.spacing['2xl'],
     },
     emptyTitle: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#382110',
-        marginBottom: 12,
         textAlign: 'center',
+        marginBottom: designSystem.spacing.md,
     },
     emptySubtitle: {
-        fontSize: 16,
-        color: '#8B7355',
         textAlign: 'center',
-        lineHeight: 24,
-        marginBottom: 32,
+        marginBottom: designSystem.spacing['4xl'],
     },
     emptyStateButton: {
-        backgroundColor: '#00635D',
-        paddingHorizontal: 24,
-        paddingVertical: 16,
-        borderRadius: 12,
-        shadowColor: '#00635D',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    emptyStateButtonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        minWidth: 200,
     },
 });

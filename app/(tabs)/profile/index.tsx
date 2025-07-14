@@ -14,6 +14,7 @@ import { logoutUser } from '@/utils/firebase';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@/utils/theme';
+import { designSystem, commonStyles } from '@/utils/designSystem';
 
 export default function ProfileTab() {
     const { user, setUser } = useAuth();
@@ -25,7 +26,6 @@ export default function ProfileTab() {
         const checkRegistrationStatus = async () => {
             try {
                 const skippedValue = await AsyncStorage.getItem('bookapp_skipped_registration');
-                // Show complete registration option if user has skipped registration
                 setShowCompleteRegistration(skippedValue === 'true');
             } catch (error) {
                 console.error('Error checking registration status:', error);
@@ -47,8 +47,8 @@ export default function ProfileTab() {
             [
                 { text: 'Cancel', style: 'cancel' },
                 {
-                    text   : 'Logout',
-                    style  : 'destructive',
+                    text: 'Logout',
+                    style: 'destructive',
                     onPress: async () => {
                         const result = await logoutUser();
                         if (result.success) {
@@ -64,27 +64,19 @@ export default function ProfileTab() {
 
     const getThemeIcon = () => {
         switch (themeMode) {
-            case 'light':
-                return Sun;
-            case 'dark':
-                return Moon;
-            case 'system':
-                return Monitor;
-            default:
-                return Monitor;
+            case 'light': return Sun;
+            case 'dark': return Moon;
+            case 'system': return Monitor;
+            default: return Monitor;
         }
     };
 
     const getThemeTitle = () => {
         switch (themeMode) {
-            case 'light':
-                return 'Light Theme';
-            case 'dark':
-                return 'Dark Theme';
-            case 'system':
-                return 'System Default';
-            default:
-                return 'System Default';
+            case 'light': return 'Light Theme';
+            case 'dark': return 'Dark Theme';
+            case 'system': return 'System Default';
+            default: return 'System Default';
         }
     };
 
@@ -101,7 +93,6 @@ export default function ProfileTab() {
                 title: 'Complete Registration', 
                 icon: UserPlus, 
                 onPress: async () => {
-                    // Remove the skipped registration flag when they choose to complete registration
                     try {
                         await AsyncStorage.removeItem('bookapp_skipped_registration');
                         setShowCompleteRegistration(false);
@@ -135,75 +126,66 @@ export default function ProfileTab() {
 
     return (
         <ScrollView 
-            style={[
-                styles.container, 
-                { 
-                    backgroundColor: theme.colors.background,
-                    paddingBottom: insets.bottom + 20 // Add extra padding for Android navigation
-                }
-            ]} 
-            showsVerticalScrollIndicator={ false }
+            style={[commonStyles.container, { paddingBottom: insets.bottom + designSystem.spacing.xl }]} 
+            showsVerticalScrollIndicator={false}
         >
-            <View style={[
-                styles.header, 
-                { 
-                    backgroundColor: theme.colors.surface, 
-                    borderBottomColor: theme.colors.border,
-                    paddingTop: insets.top + 20 // Account for status bar
-                }
-            ]}>
-                <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>Profile</Text>
+            <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+                <Text style={commonStyles.headerTitle}>Profile</Text>
             </View>
 
-            <View style={[styles.profileSection, { backgroundColor: theme.colors.surface }]}>
-                <View style={[styles.avatarContainer, { backgroundColor: theme.colors.primary }]}>
-                    <User size={ 40 } color="#ffffff" />
+            <View style={[commonStyles.card, styles.profileSection]}>
+                <View style={styles.avatarContainer}>
+                    <User size={40} color={designSystem.colors.surface} />
                 </View>
-                <Text style={[styles.userName, { color: theme.colors.textPrimary }]}>{user?.email?.split('@')[0] || 'Guest User'}</Text>
-                <Text style={[styles.userEmail, { color: theme.colors.textSecondary }]}>{user?.email || 'Not signed in'}</Text>
+                <Text style={[commonStyles.title, styles.userName]}>
+                    {user?.email?.split('@')[0] || 'Guest User'}
+                </Text>
+                <Text style={[commonStyles.caption, styles.userEmail]}>
+                    {user?.email || 'Not signed in'}
+                </Text>
                 {showCompleteRegistration && (
-                    <Text style={[styles.guestMessage, { color: theme.colors.textSecondary }]}>
+                    <Text style={[commonStyles.caption, styles.guestMessage]}>
                         Sign in to sync your data across devices
                     </Text>
                 )}
             </View>
 
-            <View style={[styles.statsSection, { backgroundColor: theme.colors.surface }]}>
-                <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>Your Stats</Text>
-                <View style={ styles.statsGrid }>
+            <View style={[commonStyles.card, styles.statsSection]}>
+                <Text style={[commonStyles.subtitle, styles.sectionTitle]}>Your Stats</Text>
+                <View style={styles.statsGrid}>
                     {stats.map((stat, index) => (
-                        <View key={ index } style={[styles.statCard, { backgroundColor: theme.colors.backgroundSecondary }]}>
-                            <stat.icon size={ 24 } color={theme.colors.primary} />
-                            <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>{stat.value}</Text>
-                            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>{stat.label}</Text>
+                        <View key={index} style={styles.statCard}>
+                            <stat.icon size={24} color={designSystem.colors.primary} />
+                            <Text style={[commonStyles.title, styles.statValue]}>{stat.value}</Text>
+                            <Text style={[commonStyles.caption, styles.statLabel]}>{stat.label}</Text>
                         </View>
                     ))}
                 </View>
             </View>
 
-            <View style={[styles.menuSection, { backgroundColor: theme.colors.surface }]}>
-                <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>Settings</Text>
+            <View style={[commonStyles.card, styles.menuSection]}>
+                <Text style={[commonStyles.subtitle, styles.sectionTitle]}>Settings</Text>
                 {menuItems.map((item, index) => (
                     <TouchableOpacity
-                        key={ index }
-                        style={[styles.menuItem, { borderBottomColor: theme.colors.borderLight }]}
-                        onPress={ item.onPress }
-                        activeOpacity={ 0.7 }
+                        key={index}
+                        style={styles.menuItem}
+                        onPress={item.onPress}
+                        activeOpacity={0.7}
                     >
-                        <View style={ styles.menuItemLeft }>
-                            <View style={[styles.menuIcon, { backgroundColor: theme.colors.backgroundSecondary }]}>
-                                <item.icon size={ 20 } color={theme.colors.textSecondary} />
+                        <View style={commonStyles.row}>
+                            <View style={styles.menuIcon}>
+                                <item.icon size={20} color={designSystem.colors.textSecondary} />
                             </View>
-                            <Text style={[styles.menuItemText, { color: theme.colors.textPrimary }]}>{item.title}</Text>
+                            <Text style={[commonStyles.body, styles.menuItemText]}>{item.title}</Text>
                         </View>
-                        <Text style={[styles.menuItemArrow, { color: theme.colors.textTertiary }]}>›</Text>
+                        <Text style={styles.menuItemArrow}>›</Text>
                     </TouchableOpacity>
                 ))}
             </View>
 
-            <View style={ styles.footer }>
-                <Text style={[styles.footerText, { color: theme.colors.textMuted }]}>Bookshelf Scanner v1.0.0</Text>
-                <Text style={[styles.footerSubtext, { color: theme.colors.textTertiary }]}>
+            <View style={styles.footer}>
+                <Text style={[commonStyles.caption, styles.footerText]}>Bookshelf Scanner v1.0.0</Text>
+                <Text style={[commonStyles.caption, styles.footerSubtext]}>
                     Made with ❤️ for book enthusiasts
                 </Text>
             </View>
@@ -212,119 +194,99 @@ export default function ProfileTab() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        paddingTop       : 60,
-        paddingHorizontal: 24,
-        paddingBottom    : 24,
-        borderBottomWidth: 1,
-    },
-    headerTitle: {
-        fontSize  : 28,
-        fontWeight: '700',
-    },
     profileSection: {
-        alignItems     : 'center',
-        paddingVertical: 32,
-        marginBottom   : 24,
+        alignItems: 'center',
+        paddingVertical: designSystem.spacing['4xl'],
+        marginHorizontal: designSystem.spacing.xl,
+        marginBottom: designSystem.spacing.xl,
     },
     avatarContainer: {
-        width          : 80,
-        height         : 80,
-        borderRadius   : 40,
-        alignItems     : 'center',
-        justifyContent : 'center',
-        marginBottom   : 16,
+        width: 80,
+        height: 80,
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: designSystem.colors.primary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: designSystem.spacing.lg,
     },
     userName: {
-        fontSize    : 24,
-        fontWeight  : '700',
-        marginBottom: 4,
+        marginBottom: designSystem.spacing.xs,
+        textAlign: 'center',
     },
     userEmail: {
-        fontSize: 16,
+        textAlign: 'center',
     },
     guestMessage: {
-        fontSize    : 14,
-        textAlign   : 'center',
-        marginTop   : 8,
-        fontStyle   : 'italic',
+        textAlign: 'center',
+        marginTop: designSystem.spacing.sm,
+        fontStyle: 'italic',
     },
     statsSection: {
-        padding        : 24,
-        marginBottom   : 24,
+        marginHorizontal: designSystem.spacing.xl,
+        marginBottom: designSystem.spacing.xl,
     },
     sectionTitle: {
-        fontSize    : 20,
-        fontWeight  : '700',
-        marginBottom: 16,
+        marginBottom: designSystem.spacing.lg,
     },
     statsGrid: {
-        flexDirection : 'row',
+        flexDirection: 'row',
         justifyContent: 'space-between',
     },
     statCard: {
-        alignItems      : 'center',
-        flex            : 1,
-        paddingVertical : 16,
-        borderRadius    : 12,
-        marginHorizontal: 4,
+        alignItems: 'center',
+        flex: 1,
+        paddingVertical: designSystem.spacing.lg,
+        borderRadius: designSystem.borderRadius.md,
+        marginHorizontal: designSystem.spacing.xs,
+        backgroundColor: designSystem.colors.surfaceSecondary,
     },
     statValue: {
-        fontSize    : 24,
-        fontWeight  : '700',
-        marginTop   : 8,
-        marginBottom: 4,
+        marginTop: designSystem.spacing.sm,
+        marginBottom: designSystem.spacing.xs,
     },
     statLabel: {
-        fontSize  : 12,
-        textAlign : 'center',
-        fontWeight: '600',
+        textAlign: 'center',
+        fontWeight: designSystem.typography.fontWeight.semibold,
     },
     menuSection: {
-        padding        : 24,
-        marginBottom   : 24,
+        marginHorizontal: designSystem.spacing.xl,
+        marginBottom: designSystem.spacing.xl,
     },
     menuItem: {
-        flexDirection    : 'row',
-        alignItems       : 'center',
-        justifyContent   : 'space-between',
-        paddingVertical  : 16,
-        borderBottomWidth: 1,
-    },
-    menuItemLeft: {
         flexDirection: 'row',
-        alignItems   : 'center',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: designSystem.spacing.lg,
+        borderBottomWidth: 1,
+        borderBottomColor: designSystem.colors.borderLight,
     },
     menuIcon: {
-        width          : 40,
-        height         : 40,
-        borderRadius   : 20,
-        alignItems     : 'center',
-        justifyContent : 'center',
-        marginRight    : 16,
+        width: 40,
+        height: 40,
+        borderRadius: designSystem.borderRadius.xl,
+        backgroundColor: designSystem.colors.surfaceSecondary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: designSystem.spacing.lg,
     },
     menuItemText: {
-        fontSize  : 16,
-        fontWeight: '600',
+        fontWeight: designSystem.typography.fontWeight.semibold,
     },
     menuItemArrow: {
-        fontSize  : 20,
+        fontSize: 20,
         fontWeight: '300',
+        color: designSystem.colors.textTertiary,
     },
     footer: {
-        alignItems       : 'center',
-        paddingVertical  : 32,
-        paddingHorizontal: 24,
+        alignItems: 'center',
+        paddingVertical: designSystem.spacing['4xl'],
+        paddingHorizontal: designSystem.spacing['2xl'],
     },
     footerText: {
-        fontSize    : 14,
-        fontWeight  : '600',
-        marginBottom: 4,
+        fontWeight: designSystem.typography.fontWeight.semibold,
+        marginBottom: designSystem.spacing.xs,
     },
     footerSubtext: {
-        fontSize: 12,
+        // Uses default caption styles
     },
 });

@@ -6,7 +6,6 @@ import {
     TouchableOpacity,
     Alert,
     Dimensions,
-    ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
@@ -18,6 +17,7 @@ import LibrarySelectionModal from '@/components/LibrarySelectionModal';
 import RecognisedBooksModal from '@/components/RecognisedBooksModal';
 import LoadingScreen from '@/components/LoadingScreen';
 import { database } from '@/utils/database';
+import { designSystem, commonStyles } from '@/utils/designSystem';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -51,23 +51,23 @@ export default function CameraTab() {
 
     if (!permission.granted) {
         return (
-            <View style={styles.container}>
-                <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-                    <Text style={styles.headerTitle}>Scan Books</Text>
-                    <Text style={styles.headerSubtitle}>Discover and organize your library</Text>
+            <View style={[commonStyles.container, { paddingBottom: insets.bottom }]}>
+                <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+                    <Text style={commonStyles.headerTitle}>Scan Books</Text>
+                    <Text style={commonStyles.headerSubtitle}>Discover and organize your library</Text>
                 </View>
                 
                 <View style={styles.permissionContainer}>
-                    <View style={styles.permissionCard}>
+                    <View style={[commonStyles.card, styles.permissionCard]}>
                         <View style={styles.permissionIconContainer}>
-                            <Camera size={48} color="#00635D" />
+                            <Camera size={48} color={designSystem.colors.primary} />
                         </View>
-                        <Text style={styles.permissionTitle}>Camera Access Required</Text>
-                        <Text style={styles.permissionMessage}>
+                        <Text style={[commonStyles.title, styles.permissionTitle]}>Camera Access Required</Text>
+                        <Text style={[commonStyles.body, styles.permissionMessage]}>
                             We need camera access to scan your bookshelves and automatically identify books in your collection.
                         </Text>
-                        <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
-                            <Text style={styles.permissionButtonText}>Enable Camera</Text>
+                        <TouchableOpacity style={[commonStyles.primaryButton, styles.permissionButton]} onPress={requestPermission}>
+                            <Text style={commonStyles.primaryButtonText}>Enable Camera</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -80,7 +80,6 @@ export default function CameraTab() {
             setIsProcessing(true);
             try {
                 const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-        
                 if (photo) {
                     await processImage(photo.uri);
                 }
@@ -112,9 +111,7 @@ export default function CameraTab() {
             const books = await recogniseBooksFromImage(imageUri);
             setRecognisedBooks(books);
             setIsProcessing(false);
-      
             setShowRecognisedBooksModal(true);
-      
         } catch (error) {
             Alert.alert('Error', 'Failed to process image. Please try again.');
             setIsProcessing(false);
@@ -148,7 +145,6 @@ export default function CameraTab() {
             }));
       
             const savedBooks = await database.addBooks(booksToAdd);
-      
             await loadLibraries();
       
             router.push({
@@ -182,12 +178,12 @@ export default function CameraTab() {
     };
 
     return (
-        <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+        <View style={[commonStyles.container, { paddingBottom: insets.bottom }]}>
             <LoadingScreen visible={isProcessing} message="Analyzing your books..." />
             
-            <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-                <Text style={styles.headerTitle}>Scan Books</Text>
-                <Text style={styles.headerSubtitle}>Point your camera at books to add them</Text>
+            <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+                <Text style={commonStyles.headerTitle}>Scan Books</Text>
+                <Text style={commonStyles.headerSubtitle}>Point your camera at books to add them</Text>
             </View>
 
             <View style={styles.cameraContainer}>
@@ -204,7 +200,7 @@ export default function CameraTab() {
                             <View style={[styles.scanCorner, styles.scanCornerBottomRight]} />
                         </View>
                         <View style={styles.scanInstructions}>
-                            <Scan size={24} color="#FFFFFF" />
+                            <Scan size={24} color={designSystem.colors.surface} />
                             <Text style={styles.scanText}>Position books within the frame</Text>
                         </View>
                     </View>
@@ -214,12 +210,12 @@ export default function CameraTab() {
             <View style={styles.controlsContainer}>
                 <View style={styles.controls}>
                     <TouchableOpacity
-                        style={styles.secondaryButton}
+                        style={[commonStyles.secondaryButton, styles.controlButton]}
                         onPress={pickImage}
                         disabled={isProcessing}
                     >
-                        <Image size={24} color={isProcessing ? '#999' : '#00635D'} />
-                        <Text style={[styles.secondaryButtonText, isProcessing && styles.disabledText]}>
+                        <Image size={20} color={isProcessing ? designSystem.colors.textMuted : designSystem.colors.primary} />
+                        <Text style={[commonStyles.secondaryButtonText, styles.controlButtonText, isProcessing && styles.disabledText]}>
                             Gallery
                         </Text>
                     </TouchableOpacity>
@@ -230,28 +226,28 @@ export default function CameraTab() {
                         disabled={isProcessing}
                     >
                         <View style={styles.captureButtonInner}>
-                            <Camera size={28} color="#FFFFFF" />
+                            <Camera size={28} color={designSystem.colors.surface} />
                         </View>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={styles.secondaryButton}
+                        style={[commonStyles.secondaryButton, styles.controlButton]}
                         onPress={toggleCameraFacing}
                         disabled={isProcessing}
                     >
-                        <RefreshCw size={24} color={isProcessing ? '#999' : '#00635D'} />
-                        <Text style={[styles.secondaryButtonText, isProcessing && styles.disabledText]}>
+                        <RefreshCw size={20} color={isProcessing ? designSystem.colors.textMuted : designSystem.colors.primary} />
+                        <Text style={[commonStyles.secondaryButtonText, styles.controlButtonText, isProcessing && styles.disabledText]}>
                             Flip
                         </Text>
                     </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity
-                    style={styles.manualAddButton}
+                    style={[commonStyles.secondaryButton, styles.manualAddButton]}
                     onPress={() => router.push('/manual-book-lookup' as any)}
                 >
-                    <BookOpen size={20} color="#00635D" />
-                    <Text style={styles.manualAddButtonText}>Add Book Manually</Text>
+                    <BookOpen size={20} color={designSystem.colors.primary} />
+                    <Text style={[commonStyles.secondaryButtonText, { marginLeft: designSystem.spacing.sm }]}>Add Book Manually</Text>
                 </TouchableOpacity>
             </View>
 
@@ -280,99 +276,42 @@ export default function CameraTab() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F9F7F4',
-    },
-    header: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        backgroundColor: '#FFFFFF',
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#382110',
-        marginBottom: 4,
-    },
-    headerSubtitle: {
-        fontSize: 16,
-        color: '#8B7355',
-        lineHeight: 22,
-    },
     permissionContainer: {
         flex: 1,
         justifyContent: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: designSystem.spacing['2xl'],
     },
     permissionCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 20,
-        padding: 32,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 8,
+        paddingVertical: designSystem.spacing['4xl'],
     },
     permissionIconContainer: {
         width: 80,
         height: 80,
-        borderRadius: 40,
-        backgroundColor: '#F0F9F8',
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: `${designSystem.colors.primary}15`,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 24,
+        marginBottom: designSystem.spacing['2xl'],
     },
     permissionTitle: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#382110',
-        marginBottom: 12,
         textAlign: 'center',
+        marginBottom: designSystem.spacing.md,
     },
     permissionMessage: {
-        fontSize: 16,
-        color: '#8B7355',
         textAlign: 'center',
-        lineHeight: 24,
-        marginBottom: 32,
+        marginBottom: designSystem.spacing['4xl'],
     },
     permissionButton: {
-        backgroundColor: '#00635D',
-        paddingHorizontal: 32,
-        paddingVertical: 16,
-        borderRadius: 12,
-        shadowColor: '#00635D',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    permissionButtonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        minWidth: 160,
     },
     cameraContainer: {
         flex: 1,
-        margin: 20,
-        borderRadius: 20,
+        margin: designSystem.spacing.xl,
+        borderRadius: designSystem.borderRadius.xl,
         overflow: 'hidden',
-        backgroundColor: '#000000',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 8,
+        backgroundColor: designSystem.colors.textPrimary,
+        ...designSystem.shadows.lg,
     },
     camera: {
         flex: 1,
@@ -391,7 +330,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: 30,
         height: 30,
-        borderColor: '#F4B942',
+        borderColor: designSystem.colors.accent,
         borderWidth: 3,
         borderRightColor: 'transparent',
         borderBottomColor: 'transparent',
@@ -419,100 +358,74 @@ const styles = StyleSheet.create({
     },
     scanInstructions: {
         alignItems: 'center',
-        marginTop: 32,
+        marginTop: designSystem.spacing['4xl'],
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 20,
+        paddingHorizontal: designSystem.spacing.xl,
+        paddingVertical: designSystem.spacing.md,
+        borderRadius: designSystem.borderRadius.xl,
     },
     scanText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
-        marginTop: 8,
+        color: designSystem.colors.surface,
+        fontSize: designSystem.typography.fontSize.base,
+        fontWeight: designSystem.typography.fontWeight.semibold,
+        marginTop: designSystem.spacing.sm,
         textAlign: 'center',
     },
     controlsContainer: {
-        backgroundColor: '#FFFFFF',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        paddingTop: 24,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 8,
+        backgroundColor: designSystem.colors.surface,
+        borderTopLeftRadius: designSystem.borderRadius['2xl'],
+        borderTopRightRadius: designSystem.borderRadius['2xl'],
+        paddingTop: designSystem.spacing['2xl'],
+        paddingHorizontal: designSystem.spacing.xl,
+        paddingBottom: designSystem.spacing.xl,
+        ...designSystem.shadows.lg,
     },
     controls: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginBottom: designSystem.spacing.xl,
+    },
+    controlButton: {
+        minWidth: 80,
+        alignItems: 'center',
+    },
+    controlButtonText: {
+        fontSize: designSystem.typography.fontSize.sm,
+        marginTop: designSystem.spacing.xs,
     },
     captureButton: {
         width: 80,
         height: 80,
-        borderRadius: 40,
-        backgroundColor: '#00635D',
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: designSystem.colors.primary,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#00635D',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 8,
+        ...designSystem.shadows.lg,
     },
     captureButtonInner: {
         width: 64,
         height: 64,
-        borderRadius: 32,
-        backgroundColor: '#00635D',
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: designSystem.colors.primary,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 3,
-        borderColor: '#FFFFFF',
+        borderColor: designSystem.colors.surface,
     },
     disabledButton: {
-        backgroundColor: '#B0B0B0',
-        shadowOpacity: 0.1,
-    },
-    secondaryButton: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 16,
-        backgroundColor: '#F0F9F8',
-        borderWidth: 1,
-        borderColor: '#E0F2F1',
-        minWidth: 80,
-    },
-    secondaryButtonText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#00635D',
-        marginTop: 4,
+        backgroundColor: designSystem.colors.textMuted,
+        ...designSystem.shadows.sm,
     },
     disabledText: {
-        color: '#999',
+        color: designSystem.colors.textMuted,
     },
     manualAddButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 24,
-        borderRadius: 16,
-        backgroundColor: '#F0F9F8',
+        paddingVertical: designSystem.spacing.lg,
         borderWidth: 2,
-        borderColor: '#00635D',
-        gap: 8,
-    },
-    manualAddButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#00635D',
+        borderColor: designSystem.colors.primary,
     },
 });
