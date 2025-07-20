@@ -1,20 +1,18 @@
 import { Tabs } from 'expo-router';
-import { BookOpen, User, BookmarkPlus, Search } from 'lucide-react-native';
+import { BookOpen, Users, BarChart3, User } from 'lucide-react-native';
 import AuthWrapper from '@/components/AuthWrapper';
-import { useTheme } from '@/utils/theme';
+import { designSystem } from '@/utils/designSystem';
 
 export default function TabLayout() {
-    const { theme } = useTheme();
-
     return (
         <AuthWrapper>
             <Tabs
                 screenOptions={{
                     headerShown: false,
-                    tabBarActiveTintColor: '#00635D',
-                    tabBarInactiveTintColor: '#8B7355',
+                    tabBarActiveTintColor: designSystem.colors.primary,
+                    tabBarInactiveTintColor: designSystem.colors.textSecondary,
                     tabBarStyle: {
-                        backgroundColor: '#FFFFFF',
+                        backgroundColor: designSystem.colors.surface,
                         borderTopWidth: 0,
                         paddingBottom: 30,
                         paddingTop: 8,
@@ -40,27 +38,36 @@ export default function TabLayout() {
                 <Tabs.Screen
                     name="library"
                     options={{
-                        title: 'My Books',
+                        title: 'My Library',
                         tabBarIcon: ({ size, color }) => (
                             <BookOpen size={size} color={color} />
                         )
                     }}
                 />
                 <Tabs.Screen
-                    name="to-read"
+                    name="book-club"
                     options={{
-                        title: 'Want to Read',
+                        title: 'My Book Club',
                         tabBarIcon: ({ size, color }) => (
-                            <BookmarkPlus size={size} color={color} />
+                            <Users size={size} color={color} />
                         )
                     }}
                 />
                 <Tabs.Screen
-                    name="manual-book-lookup"
+                    name="stats"
                     options={{
-                        title: 'Search',
+                        title: 'Stats',
                         tabBarIcon: ({ size, color }) => (
-                            <Search size={size} color={color} />
+                            <BarChart3 size={size} color={color} />
+                        )
+                    }}
+                />
+                <Tabs.Screen
+                    name="profile"
+                    options={{
+                        title: 'Profile',
+                        tabBarIcon: ({ size, color }) => (
+                            <User size={size} color={color} />
                         )
                     }}
                 />

@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
-import { checkFirstLoad } from '@/utils/firstLoad';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingScreen from '@/components/LoadingScreen';
 
 interface AuthWrapperProps {
@@ -13,45 +11,24 @@ interface AuthWrapperProps {
 export default function AuthWrapper({ children }: AuthWrapperProps) {
     const { user, loading } = useAuth();
     const pathname = usePathname();
-    const [isFirstLoad, setIsFirstLoad] = useState<boolean | null>(null);
-    const [hasSkippedRegistration, setHasSkippedRegistration] = useState<boolean>(false);
 
     useEffect(() => {
-        const checkFirstLoadStatus = async () => {
-            const firstLoad = await checkFirstLoad();
-            setIsFirstLoad(firstLoad);
-            
-            // Check if user has skipped registration
-            try {
-                const skippedValue = await AsyncStorage.getItem('bookapp_skipped_registration');
-                setHasSkippedRegistration(skippedValue === 'true');
-            } catch (error) {
-                console.error('Error checking skipped registration:', error);
+        if (!loading && !user) {
+            // User is not authenticated, redirect to login
+            if (pathname !== '/login' && pathname !== '/register') {
+                router.replace('/login');
             }
-        };
-        checkFirstLoadStatus();
-    }, []);
-
-    useEffect(() => {
-        // User is not authenticated and is first load
-        if (!loading && !user && isFirstLoad) {
-            // First app load, redirect to register screen
-            router.replace('/(tabs)/profile/register' as any);
         }
-    }, [user, loading, isFirstLoad]);
+    }, [user, loading, pathname]);
 
-    if (loading || isFirstLoad === null) {
+    if (loading) {
         return <LoadingScreen visible={true} message="Setting up your library..." />;
+    }
+
+    // If user is not authenticated and not on auth screens, show loading
+    if (!user && pathname !== '/login' && pathname !== '/register') {
+        return <LoadingScreen visible={true} message="Redirecting to login..." />;
     }
 
     return <>{children}</>;
 }
-
-const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#F9F7F4',
-    },
-});

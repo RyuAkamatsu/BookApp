@@ -8,36 +8,40 @@ import {
     Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { User, Settings, CircleHelp as HelpCircle, Star, Share, BookOpen, Camera, Smartphone, LogOut, UserPlus, LogIn, Sun, Moon, Monitor } from 'lucide-react-native';
+import { User, Settings, HelpCircle, Star, Share, BookOpen, LogOut, Sun, Moon, Monitor } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
-import { logoutUser } from '@/utils/firebase';
+import { logoutUser, getUserProfile } from '@/utils/firebase';
 import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@/utils/theme';
 import { designSystem, commonStyles } from '@/utils/designSystem';
 
 export default function ProfileTab() {
     const { user, setUser } = useAuth();
     const { theme, themeMode, updateThemeMode, isDark } = useTheme();
-    const [showCompleteRegistration, setShowCompleteRegistration] = useState(false);
+    const [userProfile, setUserProfile] = useState<any>(null);
     const insets = useSafeAreaInsets();
 
     useEffect(() => {
-        const checkRegistrationStatus = async () => {
-            try {
-                const skippedValue = await AsyncStorage.getItem('bookapp_skipped_registration');
-                setShowCompleteRegistration(skippedValue === 'true');
-            } catch (error) {
-                console.error('Error checking registration status:', error);
+        loadUserProfile();
+    }, [user]);
+
+    const loadUserProfile = async () => {
+        if (!user) return;
+        
+        try {
+            const result = await getUserProfile(user.uid);
+            if (result.success) {
+                setUserProfile(result.data);
             }
-        };
-        checkRegistrationStatus();
-    }, []);
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+        }
+    };
   
     const stats = [
-        { label: 'Books Scanned', value: '127', icon: BookOpen },
-        { label: 'Photos Taken', value: '43', icon: Camera },
-        { label: 'Collections', value: '8', icon: Smartphone },
+        { label: 'Books Read', value: userProfile?.stats?.totalBooks || '0', icon: BookOpen },
+        { label: 'Book Clubs', value: userProfile?.bookClubs?.length || '0', icon: User },
+        { label: 'Reading Goal', value: userProfile?.stats?.readingGoal || '12', icon: Star },
     ];
 
     const handleLogout = async () => {
@@ -53,6 +57,7 @@ export default function ProfileTab() {
                         const result = await logoutUser();
                         if (result.success) {
                             setUser(null);
+                            router.replace('/login');
                         } else {
                             Alert.alert('Error', 'Failed to logout');
                         }
@@ -88,30 +93,6 @@ export default function ProfileTab() {
     };
 
     const menuItems = [
-        ...(showCompleteRegistration ? [
-            { 
-                title: 'Complete Registration', 
-                icon: UserPlus, 
-                onPress: async () => {
-                    try {
-                        await AsyncStorage.removeItem('bookapp_skipped_registration');
-                        setShowCompleteRegistration(false);
-                    } catch (error) {
-                        console.error('Error removing skipped registration flag:', error);
-                    }
-                    router.push('/(tabs)/profile/register' as any);
-                }
-            }
-        ] : []),
-        ...(showCompleteRegistration ? [
-            { 
-                title: 'Login', 
-                icon: LogIn, 
-                onPress: () => {
-                    router.push('/(tabs)/profile/login' as any);
-                }
-            }
-        ] : []),
         { title: 'Account Settings', icon: Settings, onPress: () => {} },
         { 
             title: getThemeTitle(), 
@@ -121,7 +102,7 @@ export default function ProfileTab() {
         { title: 'Rate App', icon: Star, onPress: () => {} },
         { title: 'Share App', icon: Share, onPress: () => {} },
         { title: 'Help & Support', icon: HelpCircle, onPress: () => {} },
-        ...(user ? [{ title: 'Logout', icon: LogOut, onPress: handleLogout }] : []),
+        { title: 'Logout', icon: LogOut, onPress: handleLogout },
     ];
 
     return (
@@ -131,6 +112,9 @@ export default function ProfileTab() {
         >
             <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
                 <Text style={commonStyles.headerTitle}>Profile</Text>
+                <Text style={commonStyles.headerSubtitle}>
+                    Manage your account and preferences
+                </Text>
             </View>
 
             <View style={[commonStyles.card, styles.profileSection]}>
@@ -138,16 +122,11 @@ export default function ProfileTab() {
                     <User size={40} color={designSystem.colors.surface} />
                 </View>
                 <Text style={[commonStyles.title, styles.userName]}>
-                    {user?.email?.split('@')[0] || 'Guest User'}
+                    {userProfile?.username || user?.displayName || user?.email?.split('@')[0] || 'User'}
                 </Text>
                 <Text style={[commonStyles.caption, styles.userEmail]}>
-                    {user?.email || 'Not signed in'}
+                    {user?.email}
                 </Text>
-                {showCompleteRegistration && (
-                    <Text style={[commonStyles.caption, styles.guestMessage]}>
-                        Sign in to sync your data across devices
-                    </Text>
-                )}
             </View>
 
             <View style={[commonStyles.card, styles.statsSection]}>
@@ -184,7 +163,7 @@ export default function ProfileTab() {
             </View>
 
             <View style={styles.footer}>
-                <Text style={[commonStyles.caption, styles.footerText]}>Bookshelf Scanner v1.0.0</Text>
+                <Text style={[commonStyles.caption, styles.footerText]}>BookShelf v1.0.0</Text>
                 <Text style={[commonStyles.caption, styles.footerSubtext]}>
                     Made with ❤️ for book enthusiasts
                 </Text>
@@ -215,11 +194,6 @@ const styles = StyleSheet.create({
     },
     userEmail: {
         textAlign: 'center',
-    },
-    guestMessage: {
-        textAlign: 'center',
-        marginTop: designSystem.spacing.sm,
-        fontStyle: 'italic',
     },
     statsSection: {
         marginHorizontal: designSystem.spacing.xl,

@@ -1,0 +1,433 @@
+import React, { useState, useRef, useEffect } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Alert,
+    Dimensions,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
+import { Camera, Image, RefreshCw, ArrowLeft, Scan } from 'lucide-react-native';
+import { router } from 'expo-router';
+import { recogniseBooksFromImage, RecognisedBook } from '@/utils/bookRecognition';
+import LibrarySelectionModal from '@/components/LibrarySelectionModal';
+import RecognisedBooksModal from '@/components/RecognisedBooksModal';
+import LoadingScreen from '@/components/LoadingScreen';
+import { database } from '@/utils/database';
+import { designSystem, commonStyles } from '@/utils/designSystem';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+export default function ScanScreen() {
+    const [facing, setFacing] = useState<CameraType>('back');
+    const [permission, requestPermission] = useCameraPermissions();
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [showLibraryModal, setShowLibraryModal] = useState(false);
+    const [recognisedBooks, setRecognisedBooks] = useState<RecognisedBook[]>([]);
+    const [libraries, setLibraries] = useState<any[]>([]);
+    const [showRecognisedBooksModal, setShowRecognisedBooksModal] = useState(false);
+    const cameraRef = useRef<CameraView>(null);
+    const insets = useSafeAreaInsets();
+
+    useEffect(() => {
+        loadLibraries();
+    }, []);
+
+    const loadLibraries = async () => {
+        try {
+            const libs = await database.getLibraries();
+            setLibraries(libs);
+        } catch (error) {
+            console.error('Error loading libraries:', error);
+        }
+    };
+
+    if (!permission) {
+        return <LoadingScreen visible={true} message="Initializing camera..." />;
+    }
+
+    if (!permission.granted) {
+        return (
+            <View style={[commonStyles.container, { paddingBottom: insets.bottom }]}>
+                <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+                    <View style={commonStyles.spaceBetween}>
+                        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                            <ArrowLeft size={24} color={designSystem.colors.textPrimary} />
+                        </TouchableOpacity>
+                        <Text style={commonStyles.headerTitle}>Scan Books</Text>
+                        <View style={{ width: 40 }} />
+                    </View>
+                </View>
+                
+                <View style={styles.permissionContainer}>
+                    <View style={[commonStyles.card, styles.permissionCard]}>
+                        <View style={styles.permissionIconContainer}>
+                            <Camera size={48} color={designSystem.colors.primary} />
+                        </View>
+                        <Text style={[commonStyles.title, styles.permissionTitle]}>Camera Access Required</Text>
+                        <Text style={[commonStyles.body, styles.permissionMessage]}>
+                            We need camera access to scan your bookshelves and automatically identify books in your collection.
+                        </Text>
+                        <TouchableOpacity style={[commonStyles.primaryButton, styles.permissionButton]} onPress={requestPermission}>
+                            <Text style={commonStyles.primaryButtonText}>Enable Camera</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        );
+    }
+
+    const takePicture = async () => {
+        if (cameraRef.current && !isProcessing) {
+            setIsProcessing(true);
+            try {
+                const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+                if (photo) {
+                    await processImage(photo.uri);
+                }
+            } catch (error) {
+                Alert.alert('Error', 'Failed to take picture. Please try again.');
+                setIsProcessing(false);
+            }
+        }
+    };
+
+    const pickImage = async () => {
+        if (isProcessing) return;
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.7,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+            setIsProcessing(true);
+            await processImage(result.assets[0].uri);
+        }
+    };
+
+    const processImage = async (imageUri: string) => {
+        try {
+            const books = await recogniseBooksFromImage(imageUri);
+            setRecognisedBooks(books);
+            setIsProcessing(false);
+            setShowRecognisedBooksModal(true);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to process image. Please try again.');
+            setIsProcessing(false);
+        }
+    };
+
+    const handleRecognisedBooksConfirm = (books: RecognisedBook[]) => {
+        setRecognisedBooks(books);
+        setShowRecognisedBooksModal(false);
+        setShowLibraryModal(true);
+    };
+
+    const handleLibrarySelection = (libraryName: string) => {
+        saveBooksToLibrary(libraryName);
+    };
+
+    const saveBooksToLibrary = async (libraryName: string) => {
+        try {
+            const booksToAdd = recognisedBooks.map(book => ({
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                series: book.series,
+                seriesNumber: book.seriesNumber,
+                coverUrl: book.coverUrl,
+                genre: book.genre,
+                publishedYear: book.publishedYear,
+                description: book.description,
+                isbn: book.isbn,
+                libraryName,
+            }));
+      
+            const savedBooks = await database.addBooks(booksToAdd);
+            await loadLibraries();
+      
+            router.push({
+                pathname: '/(tabs)/library',
+                params: {
+                    newBooks: JSON.stringify(savedBooks),
+                    selectedLibrary: libraryName
+                }
+            });
+      
+            setRecognisedBooks([]);
+            setShowLibraryModal(false);
+        } catch (error) {
+            console.error('Error saving books:', error);
+            Alert.alert('Error', 'Failed to save books. Please try again.');
+        }
+    };
+
+    const handleCreateLibrary = async (libraryName: string) => {
+        try {
+            await database.createLibrary(libraryName);
+            await loadLibraries();
+        } catch (error) {
+            console.error('Error creating library:', error);
+            Alert.alert('Error', 'Failed to create library. Please try again.');
+        }
+    };
+
+    const toggleCameraFacing = () => {
+        setFacing(current => (current === 'back' ? 'front' : 'back'));
+    };
+
+    return (
+        <View style={[commonStyles.container, { paddingBottom: insets.bottom }]}>
+            <LoadingScreen visible={isProcessing} message="Analyzing your books..." />
+            
+            <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+                <View style={commonStyles.spaceBetween}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                        <ArrowLeft size={24} color={designSystem.colors.textPrimary} />
+                    </TouchableOpacity>
+                    <Text style={commonStyles.headerTitle}>Scan Books</Text>
+                    <View style={{ width: 40 }} />
+                </View>
+                <Text style={commonStyles.headerSubtitle}>Point your camera at books to add them</Text>
+            </View>
+
+            <View style={styles.cameraContainer}>
+                <CameraView
+                    ref={cameraRef}
+                    style={styles.camera}
+                    facing={facing}
+                >
+                    <View style={styles.cameraOverlay}>
+                        <View style={styles.scanFrame}>
+                            <View style={styles.scanCorner} />
+                            <View style={[styles.scanCorner, styles.scanCornerTopRight]} />
+                            <View style={[styles.scanCorner, styles.scanCornerBottomLeft]} />
+                            <View style={[styles.scanCorner, styles.scanCornerBottomRight]} />
+                        </View>
+                        <View style={styles.scanInstructions}>
+                            <Scan size={24} color={designSystem.colors.surface} />
+                            <Text style={styles.scanText}>Position books within the frame</Text>
+                        </View>
+                    </View>
+                </CameraView>
+            </View>
+
+            <View style={styles.controlsContainer}>
+                <View style={styles.controls}>
+                    <TouchableOpacity
+                        style={[commonStyles.secondaryButton, styles.controlButton]}
+                        onPress={pickImage}
+                        disabled={isProcessing}
+                    >
+                        <Image size={20} color={isProcessing ? designSystem.colors.textMuted : designSystem.colors.primary} />
+                        <Text style={[commonStyles.secondaryButtonText, styles.controlButtonText, isProcessing && styles.disabledText]}>
+                            Gallery
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.captureButton, isProcessing && styles.disabledButton]}
+                        onPress={takePicture}
+                        disabled={isProcessing}
+                    >
+                        <View style={styles.captureButtonInner}>
+                            <Camera size={28} color={designSystem.colors.surface} />
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[commonStyles.secondaryButton, styles.controlButton]}
+                        onPress={toggleCameraFacing}
+                        disabled={isProcessing}
+                    >
+                        <RefreshCw size={20} color={isProcessing ? designSystem.colors.textMuted : designSystem.colors.primary} />
+                        <Text style={[commonStyles.secondaryButtonText, styles.controlButtonText, isProcessing && styles.disabledText]}>
+                            Flip
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            <RecognisedBooksModal
+                isVisible={showRecognisedBooksModal}
+                onClose={() => {
+                    setShowRecognisedBooksModal(false);
+                    setRecognisedBooks([]);
+                }}
+                onConfirm={handleRecognisedBooksConfirm}
+                books={recognisedBooks}
+            />
+
+            <LibrarySelectionModal
+                isVisible={showLibraryModal}
+                onClose={() => {
+                    setShowLibraryModal(false);
+                    setRecognisedBooks([]);
+                }}
+                onSelectLibrary={handleLibrarySelection}
+                libraries={libraries}
+                onCreateLibrary={handleCreateLibrary}
+            />
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: designSystem.borderRadius.xl,
+        backgroundColor: designSystem.colors.surfaceSecondary,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    permissionContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        paddingHorizontal: designSystem.spacing['2xl'],
+    },
+    permissionCard: {
+        alignItems: 'center',
+        paddingVertical: designSystem.spacing['4xl'],
+    },
+    permissionIconContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: `${designSystem.colors.primary}15`,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: designSystem.spacing['2xl'],
+    },
+    permissionTitle: {
+        textAlign: 'center',
+        marginBottom: designSystem.spacing.md,
+    },
+    permissionMessage: {
+        textAlign: 'center',
+        marginBottom: designSystem.spacing['4xl'],
+    },
+    permissionButton: {
+        minWidth: 160,
+    },
+    cameraContainer: {
+        flex: 1,
+        margin: designSystem.spacing.xl,
+        borderRadius: designSystem.borderRadius.xl,
+        overflow: 'hidden',
+        backgroundColor: designSystem.colors.textPrimary,
+        ...designSystem.shadows.lg,
+    },
+    camera: {
+        flex: 1,
+    },
+    cameraOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    scanFrame: {
+        width: screenWidth * 0.7,
+        height: screenHeight * 0.3,
+        position: 'relative',
+    },
+    scanCorner: {
+        position: 'absolute',
+        width: 30,
+        height: 30,
+        borderColor: designSystem.colors.accent,
+        borderWidth: 3,
+        borderRightColor: 'transparent',
+        borderBottomColor: 'transparent',
+        top: 0,
+        left: 0,
+    },
+    scanCornerTopRight: {
+        top: 0,
+        right: 0,
+        left: 'auto',
+        transform: [{ rotate: '90deg' }],
+    },
+    scanCornerBottomLeft: {
+        bottom: 0,
+        left: 0,
+        top: 'auto',
+        transform: [{ rotate: '-90deg' }],
+    },
+    scanCornerBottomRight: {
+        bottom: 0,
+        right: 0,
+        top: 'auto',
+        left: 'auto',
+        transform: [{ rotate: '180deg' }],
+    },
+    scanInstructions: {
+        alignItems: 'center',
+        marginTop: designSystem.spacing['4xl'],
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        paddingHorizontal: designSystem.spacing.xl,
+        paddingVertical: designSystem.spacing.md,
+        borderRadius: designSystem.borderRadius.xl,
+    },
+    scanText: {
+        color: designSystem.colors.surface,
+        fontSize: designSystem.typography.fontSize.base,
+        fontWeight: designSystem.typography.fontWeight.semibold,
+        marginTop: designSystem.spacing.sm,
+        textAlign: 'center',
+    },
+    controlsContainer: {
+        backgroundColor: designSystem.colors.surface,
+        borderTopLeftRadius: designSystem.borderRadius['2xl'],
+        borderTopRightRadius: designSystem.borderRadius['2xl'],
+        paddingTop: designSystem.spacing['2xl'],
+        paddingHorizontal: designSystem.spacing.xl,
+        paddingBottom: designSystem.spacing.xl,
+        ...designSystem.shadows.lg,
+    },
+    controls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    controlButton: {
+        minWidth: 80,
+        alignItems: 'center',
+    },
+    controlButtonText: {
+        fontSize: designSystem.typography.fontSize.sm,
+        marginTop: designSystem.spacing.xs,
+    },
+    captureButton: {
+        width: 80,
+        height: 80,
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: designSystem.colors.primary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...designSystem.shadows.lg,
+    },
+    captureButtonInner: {
+        width: 64,
+        height: 64,
+        borderRadius: designSystem.borderRadius.full,
+        backgroundColor: designSystem.colors.primary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 3,
+        borderColor: designSystem.colors.surface,
+    },
+    disabledButton: {
+        backgroundColor: designSystem.colors.textMuted,
+        ...designSystem.shadows.sm,
+    },
+    disabledText: {
+        color: designSystem.colors.textMuted,
+    },
+});
