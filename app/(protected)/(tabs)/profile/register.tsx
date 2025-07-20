@@ -11,7 +11,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
-import { registerUser } from '@/utils/firebase';
+import { registerUser } from '@/utils/firebase/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { checkFirstLoad, markFirstLoadComplete } from '@/utils/firstLoad';
 import AsyncStorage from '@react-native-async-storage/async-storage';

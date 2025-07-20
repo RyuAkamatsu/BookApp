@@ -33,33 +33,33 @@ class DatabaseManager {
         this.db = await SQLite.openDatabaseAsync('bookshelf.db');
     
         await this.db.execAsync(`
-      CREATE TABLE IF NOT EXISTS libraries (
-        id TEXT PRIMARY KEY,
-        name TEXT UNIQUE NOT NULL,
-        bookCount INTEGER DEFAULT 0,
-        createdAt TEXT NOT NULL
-      );
-    `);
+            CREATE TABLE IF NOT EXISTS libraries (
+                id TEXT PRIMARY KEY,
+                name TEXT UNIQUE NOT NULL,
+                bookCount INTEGER DEFAULT 0,
+                createdAt TEXT NOT NULL
+            );
+        `);
 
         await this.db.execAsync(`
-      CREATE TABLE IF NOT EXISTS books (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        author TEXT NOT NULL,
-        series TEXT,
-        seriesNumber INTEGER,
-        coverUrl TEXT NOT NULL,
-        genre TEXT,
-        publishedYear INTEGER,
-        libraryName TEXT NOT NULL,
-        isRead INTEGER DEFAULT 0,
-        isToRead INTEGER DEFAULT 0,
-        scannedAt TEXT NOT NULL,
-        description TEXT,
-        isbn TEXT,
-        UNIQUE(title, author, libraryName)
-      );
-    `);
+            CREATE TABLE IF NOT EXISTS books (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                author TEXT NOT NULL,
+                series TEXT,
+                seriesNumber INTEGER,
+                coverUrl TEXT NOT NULL,
+                genre TEXT,
+                publishedYear INTEGER,
+                libraryName TEXT NOT NULL,
+                isRead INTEGER DEFAULT 0,
+                isToRead INTEGER DEFAULT 0,
+                scannedAt TEXT NOT NULL,
+                description TEXT,
+                isbn TEXT,
+                UNIQUE(title, author, libraryName)
+            );
+        `);
 
         // Insert default libraries
         await this.insertDefaultLibraries();
@@ -88,12 +88,12 @@ class DatabaseManager {
         if (!this.db) await this.init();
     
         const libraries = await this.db!.getAllAsync(`
-      SELECT l.*, COUNT(b.id) as bookCount 
-      FROM libraries l 
-      LEFT JOIN books b ON l.name = b.libraryName 
-      GROUP BY l.id 
-      ORDER BY l.createdAt DESC
-    `) as Library[];
+            SELECT l.*, COUNT(b.id) as bookCount 
+            FROM libraries l 
+            LEFT JOIN books b ON l.name = b.libraryName 
+            GROUP BY l.id 
+            ORDER BY l.createdAt DESC
+        `) as Library[];
     
         return libraries;
     }

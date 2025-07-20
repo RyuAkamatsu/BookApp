@@ -1,18 +1,19 @@
 import { Tabs } from 'expo-router';
 import { BookOpen, Users, ChartBar as BarChart3, User } from 'lucide-react-native';
 import AuthWrapper from '@/components/AuthWrapper';
-import { designSystem } from '@/utils/designSystem';
+import { useTheme } from '@/styling/theme';
 
 export default function TabLayout() {
+    const { theme } = useTheme();
     return (
         <AuthWrapper>
             <Tabs
                 screenOptions={{
                     headerShown: false,
-                    tabBarActiveTintColor: designSystem.colors.primary,
-                    tabBarInactiveTintColor: designSystem.colors.textSecondary,
+                    tabBarActiveTintColor: theme.colors.primary,
+                    tabBarInactiveTintColor: theme.colors.textSecondary,
                     tabBarStyle: {
-                        backgroundColor: designSystem.colors.surface,
+                        backgroundColor: theme.colors.surface,
                         borderTopWidth: 0,
                         paddingBottom: 30,
                         paddingTop: 8,

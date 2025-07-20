@@ -1,4 +1,4 @@
-import { getUserProfile, updateUserBooks } from '@/utils/firebase';
+import { getUserProfile, updateUserBooks } from '@/utils/firebase/firebase';
 import DatabaseManager from '@/utils/database';
 
 export interface SyncResult {

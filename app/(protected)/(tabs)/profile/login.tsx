@@ -11,9 +11,9 @@ import {
     ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
-import { loginUser } from '@/utils/firebase';
+import { loginUser } from '@/utils/firebase/firebase';
 import { useAuth } from '@/hooks/useAuth';
-import { syncDatabaseWithFirebase } from '@/utils/syncDatabase';
+import { syncDatabaseWithFirebase } from '@/utils/firebase/syncDatabase';
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');

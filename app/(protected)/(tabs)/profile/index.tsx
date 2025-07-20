@@ -10,14 +10,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { User, Settings, CircleHelp as HelpCircle, Star, Share, BookOpen, LogOut, Sun, Moon, Monitor } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
-import { logoutUser, getUserProfile } from '@/utils/firebase';
+import { logoutUser, getUserProfile } from '@/utils/firebase/firebase';
 import { router } from 'expo-router';
-import { useTheme } from '@/utils/theme';
-import { designSystem, commonStyles } from '@/utils/designSystem';
+import { useTheme, getCommonStyles } from '@/styling/theme';
 
 export default function ProfileTab() {
     const { user, setUser } = useAuth();
     const { theme, themeMode, updateThemeMode, isDark } = useTheme();
+    const commonStyles = getCommonStyles(theme);
     const [userProfile, setUserProfile] = useState<any>(null);
     const insets = useSafeAreaInsets();
 
@@ -107,10 +107,10 @@ export default function ProfileTab() {
 
     return (
         <ScrollView 
-            style={[commonStyles.container, { paddingBottom: insets.bottom + designSystem.spacing.xl }]} 
+            style={[commonStyles.container, { paddingBottom: insets.bottom + theme.spacing.xl }]} 
             showsVerticalScrollIndicator={false}
         >
-            <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+            <View style={[commonStyles.header, { paddingTop: insets.top + theme.spacing.xl }]}>
                 <Text style={commonStyles.headerTitle}>Profile</Text>
                 <Text style={commonStyles.headerSubtitle}>
                     Manage your account and preferences
@@ -119,7 +119,7 @@ export default function ProfileTab() {
 
             <View style={[commonStyles.card, styles.profileSection]}>
                 <View style={styles.avatarContainer}>
-                    <User size={40} color={designSystem.colors.surface} />
+                    <User size={40} color={theme.colors.surface} />
                 </View>
                 <Text style={[commonStyles.title, styles.userName]}>
                     {userProfile?.username || user?.displayName || user?.email?.split('@')[0] || 'User'}
@@ -134,7 +134,7 @@ export default function ProfileTab() {
                 <View style={styles.statsGrid}>
                     {stats.map((stat, index) => (
                         <View key={index} style={styles.statCard}>
-                            <stat.icon size={24} color={designSystem.colors.primary} />
+                            <stat.icon size={24} color={theme.colors.primary} />
                             <Text style={[commonStyles.title, styles.statValue]}>{stat.value}</Text>
                             <Text style={[commonStyles.caption, styles.statLabel]}>{stat.label}</Text>
                         </View>
@@ -153,7 +153,7 @@ export default function ProfileTab() {
                     >
                         <View style={commonStyles.row}>
                             <View style={styles.menuIcon}>
-                                <item.icon size={20} color={designSystem.colors.textSecondary} />
+                                <item.icon size={20} color={theme.colors.textSecondary} />
                             </View>
                             <Text style={[commonStyles.body, styles.menuItemText]}>{item.title}</Text>
                         </View>
@@ -172,35 +172,35 @@ export default function ProfileTab() {
     );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme => StyleSheet.create({
     profileSection: {
         alignItems: 'center',
-        paddingVertical: designSystem.spacing['4xl'],
-        marginHorizontal: designSystem.spacing.xl,
-        marginBottom: designSystem.spacing.xl,
+        paddingVertical: theme.spacing['4xl'],
+        marginHorizontal: theme.spacing.xl,
+        marginBottom: theme.spacing.xl,
     },
     avatarContainer: {
         width: 80,
         height: 80,
-        borderRadius: designSystem.borderRadius.full,
-        backgroundColor: designSystem.colors.primary,
+        borderRadius: theme.borderRadius.full,
+        backgroundColor: theme.colors.primary,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: designSystem.spacing.lg,
+        marginBottom: theme.spacing.lg,
     },
     userName: {
-        marginBottom: designSystem.spacing.xs,
+        marginBottom: theme.spacing.xs,
         textAlign: 'center',
     },
     userEmail: {
         textAlign: 'center',
     },
     statsSection: {
-        marginHorizontal: designSystem.spacing.xl,
-        marginBottom: designSystem.spacing.xl,
+        marginHorizontal: theme.spacing.xl,
+        marginBottom: theme.spacing.xl,
     },
     sectionTitle: {
-        marginBottom: designSystem.spacing.lg,
+        marginBottom: theme.spacing.lg,
     },
     statsGrid: {
         flexDirection: 'row',
@@ -209,58 +209,58 @@ const styles = StyleSheet.create({
     statCard: {
         alignItems: 'center',
         flex: 1,
-        paddingVertical: designSystem.spacing.lg,
-        borderRadius: designSystem.borderRadius.md,
-        marginHorizontal: designSystem.spacing.xs,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        paddingVertical: theme.spacing.lg,
+        borderRadius: theme.borderRadius.md,
+        marginHorizontal: theme.spacing.xs,
+        backgroundColor: theme.colors.surfaceSecondary,
     },
     statValue: {
-        marginTop: designSystem.spacing.sm,
-        marginBottom: designSystem.spacing.xs,
+        marginTop: theme.spacing.sm,
+        marginBottom: theme.spacing.xs,
     },
     statLabel: {
         textAlign: 'center',
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        fontWeight: theme.typography.fontWeight.semibold,
     },
     menuSection: {
-        marginHorizontal: designSystem.spacing.xl,
-        marginBottom: designSystem.spacing.xl,
+        marginHorizontal: theme.spacing.xl,
+        marginBottom: theme.spacing.xl,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: designSystem.spacing.lg,
+        paddingVertical: theme.spacing.lg,
         borderBottomWidth: 1,
-        borderBottomColor: designSystem.colors.borderLight,
+        borderBottomColor: theme.colors.borderLight,
     },
     menuIcon: {
         width: 40,
         height: 40,
-        borderRadius: designSystem.borderRadius.xl,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        borderRadius: theme.borderRadius.xl,
+        backgroundColor: theme.colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: designSystem.spacing.lg,
+        marginRight: theme.spacing.lg,
     },
     menuItemText: {
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        fontWeight: theme.typography.fontWeight.semibold,
     },
     menuItemArrow: {
         fontSize: 20,
         fontWeight: '300',
-        color: designSystem.colors.textTertiary,
+        color: theme.colors.textTertiary,
     },
     footer: {
         alignItems: 'center',
-        paddingVertical: designSystem.spacing['4xl'],
-        paddingHorizontal: designSystem.spacing['2xl'],
+        paddingVertical: theme.spacing['4xl'],
+        paddingHorizontal: theme.spacing['2xl'],
     },
     footerText: {
-        fontWeight: designSystem.typography.fontWeight.semibold,
-        marginBottom: designSystem.spacing.xs,
+        fontWeight: theme.typography.fontWeight.semibold,
+        marginBottom: theme.spacing.xs,
     },
     footerSubtext: {
         // Uses default caption styles
     },
-});
+}))(theme);

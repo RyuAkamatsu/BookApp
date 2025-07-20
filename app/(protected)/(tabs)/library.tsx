@@ -13,10 +13,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Book, Search, Filter, Library, Star, BookmarkPlus, MoveHorizontal as MoreHorizontal, Camera } from 'lucide-react-native';
 import { database, BookRecord } from '@/utils/database';
-import { designSystem, commonStyles } from '@/utils/designSystem';
+import { useTheme, getCommonStyles } from '@/styling/theme';
 
 const { width: screenWidth } = Dimensions.get('window');
-const cardWidth = (screenWidth - (designSystem.spacing.xl * 2) - designSystem.spacing.md) / 2;
+const cardWidth = (screenWidth - (getCommonStyles(useTheme()).spacing.xl * 2) - getCommonStyles(useTheme()).spacing.md) / 2;
 
 interface LibraryInfo {
   id: string;
@@ -25,6 +25,8 @@ interface LibraryInfo {
 }
 
 export default function LibraryTab() {
+    const { theme } = useTheme();
+    const commonStyles = getCommonStyles(theme);
     const [books, setBooks] = useState<BookRecord[]>([]);
     const [libraries, setLibraries] = useState<LibraryInfo[]>([]);
     const [selectedLibrary, setSelectedLibrary] = useState<string | null>(null);
@@ -118,7 +120,7 @@ export default function LibraryTab() {
             <View style={styles.bookCover}>
                 <Image source={{ uri: item.coverUrl }} style={styles.coverImage} />
                 <View style={styles.ratingOverlay}>
-                    <Star size={12} color={designSystem.colors.accent} fill={designSystem.colors.accent} />
+                    <Star size={12} color={theme.colors.accent} fill={theme.colors.accent} />
                     <Text style={styles.ratingText}>4.2</Text>
                 </View>
                 <TouchableOpacity
@@ -127,8 +129,8 @@ export default function LibraryTab() {
                 >
                     <BookmarkPlus 
                         size={16} 
-                        color={item.isToRead ? designSystem.colors.accent : designSystem.colors.surface} 
-                        fill={item.isToRead ? designSystem.colors.accent : 'transparent'}
+                        color={item.isToRead ? theme.colors.accent : theme.colors.surface} 
+                        fill={item.isToRead ? theme.colors.accent : 'transparent'}
                     />
                 </TouchableOpacity>
             </View>
@@ -164,7 +166,7 @@ export default function LibraryTab() {
                     </View>
                     
                     <TouchableOpacity style={styles.moreButton}>
-                        <MoreHorizontal size={16} color={designSystem.colors.textSecondary} />
+                        <MoreHorizontal size={16} color={theme.colors.textSecondary} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -172,7 +174,7 @@ export default function LibraryTab() {
     );
 
     const renderHeader = () => (
-        <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+        <View style={[commonStyles.header, { paddingTop: insets.top + getCommonStyles(theme).spacing.xl }]}>
             <View style={commonStyles.spaceBetween}>
                 <View style={{ flex: 1 }}>
                     <Text style={commonStyles.headerTitle}>My Books</Text>
@@ -182,16 +184,16 @@ export default function LibraryTab() {
                 </View>
                 <View style={commonStyles.row}>
                     <TouchableOpacity 
-                        style={[styles.headerButton, { marginRight: designSystem.spacing.md }]}
+                        style={[styles.headerButton, { marginRight: getCommonStyles(theme).spacing.md }]}
                         onPress={handleScanPress}
                     >
-                        <Camera size={20} color={designSystem.colors.textSecondary} />
+                        <Camera size={20} color={theme.colors.textSecondary} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.headerButton, { marginRight: designSystem.spacing.md }]}>
-                        <Search size={20} color={designSystem.colors.textSecondary} />
+                    <TouchableOpacity style={[styles.headerButton, { marginRight: getCommonStyles(theme).spacing.md }]}>
+                        <Search size={20} color={theme.colors.textSecondary} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.headerButton}>
-                        <Filter size={20} color={designSystem.colors.textSecondary} />
+                        <Filter size={20} color={theme.colors.textSecondary} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -213,8 +215,8 @@ export default function LibraryTab() {
                     >
                         <Library size={16} color={
                             (item.id === 'all' ? !selectedLibrary : selectedLibrary === item.name) 
-                                ? designSystem.colors.surface 
-                                : designSystem.colors.primary
+                                ? theme.colors.surface 
+                                : theme.colors.primary
                         } />
                         <Text style={[
                             styles.filterChipText,
@@ -245,7 +247,7 @@ export default function LibraryTab() {
     const renderEmptyState = () => (
         <View style={[commonStyles.center, styles.emptyState]}>
             <View style={styles.emptyStateIcon}>
-                <Book size={48} color={designSystem.colors.textMuted} />
+                <Book size={48} color={theme.colors.textMuted} />
             </View>
             <Text style={[commonStyles.title, styles.emptyTitle]}>No Books Yet</Text>
             <Text style={[commonStyles.body, styles.emptySubtitle]}>
@@ -273,7 +275,7 @@ export default function LibraryTab() {
                     renderItem={renderBookCard}
                     keyExtractor={item => item.id}
                     numColumns={2}
-                    contentContainerStyle={[styles.listContainer, { paddingBottom: insets.bottom + designSystem.spacing.xl }]}
+                    contentContainerStyle={[styles.listContainer, { paddingBottom: insets.bottom + getCommonStyles(theme).spacing.xl }]}
                     columnWrapperStyle={styles.row}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
@@ -289,48 +291,48 @@ const styles = StyleSheet.create({
     headerButton: {
         width: 44,
         height: 44,
-        borderRadius: designSystem.borderRadius.full,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.full,
+        backgroundColor: getCommonStyles(useTheme()).colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
     },
     filterSection: {
-        backgroundColor: designSystem.colors.surface,
-        paddingVertical: designSystem.spacing.lg,
-        marginBottom: designSystem.spacing.sm,
+        backgroundColor: getCommonStyles(useTheme()).colors.surface,
+        paddingVertical: getCommonStyles(useTheme()).spacing.lg,
+        marginBottom: getCommonStyles(useTheme()).spacing.sm,
     },
     filterList: {
-        paddingHorizontal: designSystem.spacing.xl,
+        paddingHorizontal: getCommonStyles(useTheme()).spacing.xl,
     },
     filterChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: designSystem.spacing.lg,
-        paddingVertical: designSystem.spacing.md,
-        borderRadius: designSystem.borderRadius.xl,
-        backgroundColor: designSystem.colors.surfaceSecondary,
-        marginRight: designSystem.spacing.md,
+        paddingHorizontal: getCommonStyles(useTheme()).spacing.lg,
+        paddingVertical: getCommonStyles(useTheme()).spacing.md,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.xl,
+        backgroundColor: getCommonStyles(useTheme()).colors.surfaceSecondary,
+        marginRight: getCommonStyles(useTheme()).spacing.md,
         borderWidth: 1,
-        borderColor: designSystem.colors.border,
-        gap: designSystem.spacing.xs,
+        borderColor: getCommonStyles(useTheme()).colors.border,
+        gap: getCommonStyles(useTheme()).spacing.xs,
     },
     activeFilterChip: {
-        backgroundColor: designSystem.colors.primary,
-        borderColor: designSystem.colors.primary,
+        backgroundColor: getCommonStyles(useTheme()).colors.primary,
+        borderColor: getCommonStyles(useTheme()).colors.primary,
     },
     filterChipText: {
-        fontSize: designSystem.typography.fontSize.sm,
-        fontWeight: designSystem.typography.fontWeight.semibold,
-        color: designSystem.colors.primary,
+        fontSize: getCommonStyles(useTheme()).typography.fontSize.sm,
+        fontWeight: getCommonStyles(useTheme()).typography.fontWeight.semibold,
+        color: getCommonStyles(useTheme()).colors.primary,
     },
     activeFilterChipText: {
-        color: designSystem.colors.surface,
+        color: getCommonStyles(useTheme()).colors.surface,
     },
     filterChipBadge: {
-        backgroundColor: designSystem.colors.border,
-        paddingHorizontal: designSystem.spacing.xs,
+        backgroundColor: getCommonStyles(useTheme()).colors.border,
+        paddingHorizontal: getCommonStyles(useTheme()).spacing.xs,
         paddingVertical: 2,
-        borderRadius: designSystem.borderRadius.sm,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.sm,
         minWidth: 20,
         alignItems: 'center',
     },
@@ -338,22 +340,22 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
     },
     filterChipBadgeText: {
-        fontSize: designSystem.typography.fontSize.xs,
-        fontWeight: designSystem.typography.fontWeight.semibold,
-        color: designSystem.colors.primary,
+        fontSize: getCommonStyles(useTheme()).typography.fontSize.xs,
+        fontWeight: getCommonStyles(useTheme()).typography.fontWeight.semibold,
+        color: getCommonStyles(useTheme()).colors.primary,
     },
     activeFilterChipBadgeText: {
-        color: designSystem.colors.surface,
+        color: getCommonStyles(useTheme()).colors.surface,
     },
     listContainer: {
-        padding: designSystem.spacing.xl,
+        padding: getCommonStyles(useTheme()).spacing.xl,
     },
     row: {
         justifyContent: 'space-between',
     },
     bookCard: {
         width: cardWidth,
-        marginBottom: designSystem.spacing.xl,
+        marginBottom: getCommonStyles(useTheme()).spacing.xl,
         padding: 0,
         overflow: 'hidden',
     },
@@ -365,117 +367,117 @@ const styles = StyleSheet.create({
     coverImage: {
         width: '100%',
         height: '100%',
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        backgroundColor: getCommonStyles(useTheme()).colors.surfaceSecondary,
     },
     ratingOverlay: {
         position: 'absolute',
-        top: designSystem.spacing.sm,
-        left: designSystem.spacing.sm,
+        top: getCommonStyles(useTheme()).spacing.sm,
+        left: getCommonStyles(useTheme()).spacing.sm,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        paddingHorizontal: designSystem.spacing.xs,
-        paddingVertical: designSystem.spacing.xs,
-        borderRadius: designSystem.borderRadius.md,
-        gap: designSystem.spacing.xs,
+        paddingHorizontal: getCommonStyles(useTheme()).spacing.xs,
+        paddingVertical: getCommonStyles(useTheme()).spacing.xs,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.md,
+        gap: getCommonStyles(useTheme()).spacing.xs,
     },
     ratingText: {
-        color: designSystem.colors.surface,
-        fontSize: designSystem.typography.fontSize.xs,
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        color: getCommonStyles(useTheme()).colors.surface,
+        fontSize: getCommonStyles(useTheme()).typography.fontSize.xs,
+        fontWeight: getCommonStyles(useTheme()).typography.fontWeight.semibold,
     },
     bookmarkButton: {
         position: 'absolute',
-        top: designSystem.spacing.sm,
-        right: designSystem.spacing.sm,
+        top: getCommonStyles(useTheme()).spacing.sm,
+        right: getCommonStyles(useTheme()).spacing.sm,
         width: 32,
         height: 32,
-        borderRadius: designSystem.borderRadius.lg,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.lg,
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
         alignItems: 'center',
         justifyContent: 'center',
     },
     bookInfo: {
-        padding: designSystem.spacing.md,
+        padding: getCommonStyles(useTheme()).spacing.md,
     },
     bookTitle: {
-        marginBottom: designSystem.spacing.xs,
-        lineHeight: designSystem.typography.lineHeight.tight * designSystem.typography.fontSize.lg,
+        marginBottom: getCommonStyles(useTheme()).spacing.xs,
+        lineHeight: getCommonStyles(useTheme()).typography.lineHeight.tight * getCommonStyles(useTheme()).typography.fontSize.lg,
     },
     bookAuthor: {
-        marginBottom: designSystem.spacing.sm,
+        marginBottom: getCommonStyles(useTheme()).spacing.sm,
     },
     genreTag: {
         alignSelf: 'flex-start',
-        backgroundColor: `${designSystem.colors.primary}15`,
-        paddingHorizontal: designSystem.spacing.sm,
-        paddingVertical: designSystem.spacing.xs,
-        borderRadius: designSystem.borderRadius.md,
-        marginBottom: designSystem.spacing.md,
+        backgroundColor: `${getCommonStyles(useTheme()).colors.primary}15`,
+        paddingHorizontal: getCommonStyles(useTheme()).spacing.sm,
+        paddingVertical: getCommonStyles(useTheme()).spacing.xs,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.md,
+        marginBottom: getCommonStyles(useTheme()).spacing.md,
     },
     genreText: {
-        fontSize: designSystem.typography.fontSize.xs,
-        color: designSystem.colors.primary,
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        fontSize: getCommonStyles(useTheme()).typography.fontSize.xs,
+        color: getCommonStyles(useTheme()).colors.primary,
+        fontWeight: getCommonStyles(useTheme()).typography.fontWeight.semibold,
     },
     bookFooter: {
-        marginTop: designSystem.spacing.xs,
+        marginTop: getCommonStyles(useTheme()).spacing.xs,
     },
     readStatus: {
         flex: 1,
     },
     readBadge: {
-        backgroundColor: `${designSystem.colors.success}15`,
-        paddingHorizontal: designSystem.spacing.sm,
-        paddingVertical: designSystem.spacing.xs,
-        borderRadius: designSystem.borderRadius.md,
+        backgroundColor: `${getCommonStyles(useTheme()).colors.success}15`,
+        paddingHorizontal: getCommonStyles(useTheme()).spacing.sm,
+        paddingVertical: getCommonStyles(useTheme()).spacing.xs,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.md,
         alignSelf: 'flex-start',
     },
     readBadgeText: {
-        fontSize: designSystem.typography.fontSize.xs,
-        color: designSystem.colors.success,
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        fontSize: getCommonStyles(useTheme()).typography.fontSize.xs,
+        color: getCommonStyles(useTheme()).colors.success,
+        fontWeight: getCommonStyles(useTheme()).typography.fontWeight.semibold,
     },
     markReadButton: {
-        backgroundColor: designSystem.colors.accent,
-        paddingHorizontal: designSystem.spacing.sm,
-        paddingVertical: designSystem.spacing.xs,
-        borderRadius: designSystem.borderRadius.md,
+        backgroundColor: getCommonStyles(useTheme()).colors.accent,
+        paddingHorizontal: getCommonStyles(useTheme()).spacing.sm,
+        paddingVertical: getCommonStyles(useTheme()).spacing.xs,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.md,
         alignSelf: 'flex-start',
     },
     markReadText: {
-        fontSize: designSystem.typography.fontSize.xs,
-        color: designSystem.colors.surface,
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        fontSize: getCommonStyles(useTheme()).typography.fontSize.xs,
+        color: getCommonStyles(useTheme()).colors.surface,
+        fontWeight: getCommonStyles(useTheme()).typography.fontWeight.semibold,
     },
     moreButton: {
         width: 32,
         height: 32,
-        borderRadius: designSystem.borderRadius.lg,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.lg,
+        backgroundColor: getCommonStyles(useTheme()).colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
     },
     emptyState: {
         flex: 1,
-        paddingHorizontal: designSystem.spacing['4xl'],
+        paddingHorizontal: getCommonStyles(useTheme()).spacing['4xl'],
     },
     emptyStateIcon: {
         width: 80,
         height: 80,
-        borderRadius: designSystem.borderRadius.full,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        borderRadius: getCommonStyles(useTheme()).borderRadius.full,
+        backgroundColor: getCommonStyles(useTheme()).colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: designSystem.spacing['2xl'],
+        marginBottom: getCommonStyles(useTheme()).spacing['2xl'],
     },
     emptyTitle: {
         textAlign: 'center',
-        marginBottom: designSystem.spacing.md,
+        marginBottom: getCommonStyles(useTheme()).spacing.md,
     },
     emptySubtitle: {
         textAlign: 'center',
-        marginBottom: designSystem.spacing['4xl'],
+        marginBottom: getCommonStyles(useTheme()).spacing['4xl'],
     },
     emptyStateButton: {
         minWidth: 200,

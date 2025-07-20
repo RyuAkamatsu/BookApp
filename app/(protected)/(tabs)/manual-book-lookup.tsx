@@ -14,7 +14,7 @@ import { router } from 'expo-router';
 import { ArrowLeft, Search, Plus, BookOpen } from 'lucide-react-native';
 import { lookupBookManually, lookupBookByISBN, RecognisedBook } from '@/utils/bookRecognition';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { designSystem, commonStyles } from '@/utils/designSystem';
+import { useTheme, getCommonStyles } from '@/styling/theme';
 
 export default function ManualBookLookupScreen() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -23,6 +23,8 @@ export default function ManualBookLookupScreen() {
     const [searchResults, setSearchResults] = useState<RecognisedBook[]>([]);
     const [selectedBooks, setSelectedBooks] = useState<RecognisedBook[]>([]);
     const insets = useSafeAreaInsets();
+    const { theme } = useTheme();
+    const commonStyles = getCommonStyles(theme);
 
     const handleSearch = async () => {
         if (!searchQuery.trim()) {
@@ -109,8 +111,8 @@ export default function ManualBookLookupScreen() {
                 style={[commonStyles.primaryButton, styles.addButton]}
                 onPress={() => handleAddBook(book)}
             >
-                <Plus size={16} color={designSystem.colors.surface} />
-                <Text style={[commonStyles.primaryButtonText, { marginLeft: designSystem.spacing.xs }]}>Add</Text>
+                <Plus size={16} color={theme.colors.surface} />
+                <Text style={[commonStyles.primaryButtonText, { marginLeft: theme.spacing.xs }]}>Add</Text>
             </TouchableOpacity>
         </View>
     );
@@ -140,10 +142,10 @@ export default function ManualBookLookupScreen() {
 
     return (
         <View style={[commonStyles.container, { paddingBottom: insets.bottom }]}>
-            <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+            <View style={[commonStyles.header, { paddingTop: insets.top + theme.spacing.xl }]}>
                 <View style={commonStyles.spaceBetween}>
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                        <ArrowLeft size={24} color={designSystem.colors.textPrimary} />
+                        <ArrowLeft size={24} color={theme.colors.textPrimary} />
                     </TouchableOpacity>
                     <Text style={commonStyles.headerTitle}>Add Book Manually</Text>
                     <View style={{ width: 40 }} />
@@ -187,7 +189,7 @@ export default function ManualBookLookupScreen() {
 
                     <View style={commonStyles.row}>
                         <TextInput
-                            style={[styles.searchInput, { flex: 1, marginRight: designSystem.spacing.md }]}
+                            style={[styles.searchInput, { flex: 1, marginRight: theme.spacing.md }]}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                             placeholder={searchType === 'isbn' ? 'Enter ISBN' : 'Enter book title or author'}
@@ -200,9 +202,9 @@ export default function ManualBookLookupScreen() {
                             disabled={isLoading}
                         >
                             {isLoading ? (
-                                <ActivityIndicator size="small" color={designSystem.colors.surface} />
+                                <ActivityIndicator size="small" color={theme.colors.surface} />
                             ) : (
-                                <Search size={20} color={designSystem.colors.surface} />
+                                <Search size={20} color={theme.colors.surface} />
                             )}
                         </TouchableOpacity>
                     </View>
@@ -228,8 +230,8 @@ export default function ManualBookLookupScreen() {
             {selectedBooks.length > 0 && (
                 <View style={styles.footer}>
                     <TouchableOpacity style={[commonStyles.primaryButton, styles.continueButton]} onPress={handleContinue}>
-                        <BookOpen size={20} color={designSystem.colors.surface} />
-                        <Text style={[commonStyles.primaryButtonText, { marginLeft: designSystem.spacing.sm }]}>
+                        <BookOpen size={20} color={theme.colors.surface} />
+                        <Text style={[commonStyles.primaryButtonText, { marginLeft: theme.spacing.sm }]}>
                             Continue with {selectedBooks.length} Book{selectedBooks.length !== 1 ? 's' : ''}
                         </Text>
                     </TouchableOpacity>
@@ -243,108 +245,108 @@ const styles = StyleSheet.create({
     backButton: {
         width: 40,
         height: 40,
-        borderRadius: designSystem.borderRadius.xl,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        borderRadius: theme.borderRadius.xl,
+        backgroundColor: theme.colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
     },
     content: {
         flex: 1,
-        padding: designSystem.spacing.xl,
+        padding: theme.spacing.xl,
     },
     sectionTitle: {
-        marginBottom: designSystem.spacing.lg,
+        marginBottom: theme.spacing.lg,
     },
     searchTypeToggle: {
         flexDirection: 'row',
-        backgroundColor: designSystem.colors.surfaceSecondary,
-        borderRadius: designSystem.borderRadius.md,
-        padding: designSystem.spacing.xs,
-        marginBottom: designSystem.spacing.lg,
+        backgroundColor: theme.colors.surfaceSecondary,
+        borderRadius: theme.borderRadius.md,
+        padding: theme.spacing.xs,
+        marginBottom: theme.spacing.lg,
         borderWidth: 1,
-        borderColor: designSystem.colors.border,
+        borderColor: theme.colors.border,
     },
     toggleButton: {
         flex: 1,
-        paddingVertical: designSystem.spacing.md,
-        paddingHorizontal: designSystem.spacing.lg,
-        borderRadius: designSystem.borderRadius.sm,
+        paddingVertical: theme.spacing.md,
+        paddingHorizontal: theme.spacing.lg,
+        borderRadius: theme.borderRadius.sm,
         alignItems: 'center',
     },
     activeToggleButton: {
-        backgroundColor: designSystem.colors.surface,
-        ...designSystem.shadows.sm,
+        backgroundColor: theme.colors.surface,
+        ...theme.shadows.sm,
         borderWidth: 1,
-        borderColor: designSystem.colors.border,
+        borderColor: theme.colors.border,
     },
     toggleButtonText: {
-        fontSize: designSystem.typography.fontSize.sm,
-        fontWeight: designSystem.typography.fontWeight.medium,
-        color: designSystem.colors.textSecondary,
+        fontSize: theme.typography.fontSize.sm,
+        fontWeight: theme.typography.fontWeight.medium,
+        color: theme.colors.textSecondary,
     },
     activeToggleButtonText: {
-        color: designSystem.colors.textPrimary,
+        color: theme.colors.textPrimary,
     },
     searchInput: {
         borderWidth: 1,
-        borderColor: designSystem.colors.border,
-        borderRadius: designSystem.borderRadius.md,
-        paddingHorizontal: designSystem.spacing.lg,
-        paddingVertical: designSystem.spacing.md,
-        fontSize: designSystem.typography.fontSize.base,
-        backgroundColor: designSystem.colors.surface,
+        borderColor: theme.colors.border,
+        borderRadius: theme.borderRadius.md,
+        paddingHorizontal: theme.spacing.lg,
+        paddingVertical: theme.spacing.md,
+        fontSize: theme.typography.fontSize.base,
+        backgroundColor: theme.colors.surface,
     },
     searchButton: {
         width: 48,
         height: 48,
-        borderRadius: designSystem.borderRadius.md,
+        borderRadius: theme.borderRadius.md,
         alignItems: 'center',
         justifyContent: 'center',
     },
     disabledButton: {
-        backgroundColor: designSystem.colors.textMuted,
+        backgroundColor: theme.colors.textMuted,
     },
     searchResult: {
-        marginBottom: designSystem.spacing.md,
+        marginBottom: theme.spacing.md,
     },
     bookCover: {
         width: 60,
         height: 80,
-        borderRadius: designSystem.borderRadius.sm,
-        marginRight: designSystem.spacing.md,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        borderRadius: theme.borderRadius.sm,
+        marginRight: theme.spacing.md,
+        backgroundColor: theme.colors.surfaceSecondary,
     },
     bookDetails: {
         flex: 1,
     },
     bookTitle: {
-        marginBottom: designSystem.spacing.xs,
+        marginBottom: theme.spacing.xs,
     },
     bookAuthor: {
-        marginBottom: designSystem.spacing.xs,
+        marginBottom: theme.spacing.xs,
     },
     bookGenre: {
-        fontSize: designSystem.typography.fontSize.xs,
-        color: designSystem.colors.primary,
-        fontWeight: designSystem.typography.fontWeight.medium,
-        marginBottom: designSystem.spacing.xs,
+        fontSize: theme.typography.fontSize.xs,
+        color: theme.colors.primary,
+        fontWeight: theme.typography.fontWeight.medium,
+        marginBottom: theme.spacing.xs,
     },
     bookYear: {
-        marginBottom: designSystem.spacing.xs,
+        marginBottom: theme.spacing.xs,
     },
     bookDescription: {
-        lineHeight: designSystem.typography.lineHeight.normal * designSystem.typography.fontSize.sm,
+        lineHeight: theme.typography.lineHeight.normal * theme.typography.fontSize.sm,
     },
     addButton: {
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-start',
-        marginTop: designSystem.spacing.md,
-        paddingHorizontal: designSystem.spacing.md,
-        paddingVertical: designSystem.spacing.sm,
+        marginTop: theme.spacing.md,
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.sm,
     },
     selectedBook: {
-        marginBottom: designSystem.spacing.sm,
+        marginBottom: theme.spacing.sm,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -352,38 +354,38 @@ const styles = StyleSheet.create({
     selectedBookCover: {
         width: 40,
         height: 50,
-        borderRadius: designSystem.borderRadius.xs,
-        marginRight: designSystem.spacing.md,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        borderRadius: theme.borderRadius.xs,
+        marginRight: theme.spacing.md,
+        backgroundColor: theme.colors.surfaceSecondary,
     },
     selectedBookDetails: {
         flex: 1,
     },
     selectedBookTitle: {
-        marginBottom: designSystem.spacing.xs,
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        marginBottom: theme.spacing.xs,
+        fontWeight: theme.typography.fontWeight.semibold,
     },
     selectedBookAuthor: {
         // Uses default caption styles
     },
     removeButton: {
-        paddingHorizontal: designSystem.spacing.md,
-        paddingVertical: designSystem.spacing.sm,
-        borderRadius: designSystem.borderRadius.sm,
-        backgroundColor: `${designSystem.colors.error}15`,
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.sm,
+        borderRadius: theme.borderRadius.sm,
+        backgroundColor: `${theme.colors.error}15`,
         borderWidth: 1,
-        borderColor: designSystem.colors.error,
+        borderColor: theme.colors.error,
     },
     removeButtonText: {
-        fontSize: designSystem.typography.fontSize.xs,
-        fontWeight: designSystem.typography.fontWeight.medium,
-        color: designSystem.colors.error,
+        fontSize: theme.typography.fontSize.xs,
+        fontWeight: theme.typography.fontWeight.medium,
+        color: theme.colors.error,
     },
     footer: {
-        padding: designSystem.spacing.xl,
-        backgroundColor: designSystem.colors.surface,
+        padding: theme.spacing.xl,
+        backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
-        borderTopColor: designSystem.colors.border,
+        borderTopColor: theme.colors.border,
     },
     continueButton: {
         flexDirection: 'row',

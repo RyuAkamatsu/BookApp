@@ -9,8 +9,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChartBar as BarChart3, BookOpen, Calendar, Target, TrendingUp, Award } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
-import { getUserProfile } from '@/utils/firebase';
-import { designSystem, commonStyles } from '@/utils/designSystem';
+import { getUserProfile } from '@/utils/firebase/firebase';
+import { useTheme, getCommonStyles } from '@/styling/theme';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -37,6 +37,8 @@ export default function StatsTab() {
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
     const insets = useSafeAreaInsets();
+    const { theme } = useTheme();
+    const commonStyles = getCommonStyles(theme);
 
     useEffect(() => {
         loadStats();
@@ -75,7 +77,7 @@ export default function StatsTab() {
         <View style={[commonStyles.card, styles.progressCard]}>
             <View style={styles.progressHeader}>
                 <View style={styles.progressIcon}>
-                    <Target size={24} color={designSystem.colors.primary} />
+                    <Target size={24} color={theme.colors.primary} />
                 </View>
                 <View style={styles.progressInfo}>
                     <Text style={[commonStyles.subtitle, styles.progressTitle]}>Reading Goal</Text>
@@ -120,13 +122,13 @@ export default function StatsTab() {
         ];
 
         const maxBooks = Math.max(...monthlyData.map(d => d.books));
-        const chartWidth = screenWidth - (designSystem.spacing.xl * 4);
-        const barWidth = chartWidth / monthlyData.length - designSystem.spacing.md;
+        const chartWidth = screenWidth - (theme.spacing.xl * 4);
+        const barWidth = chartWidth / monthlyData.length - theme.spacing.md;
 
         return (
             <View style={[commonStyles.card, styles.chartCard]}>
                 <View style={styles.chartHeader}>
-                    <BarChart3 size={24} color={designSystem.colors.primary} />
+                    <BarChart3 size={24} color={theme.colors.primary} />
                     <Text style={[commonStyles.subtitle, styles.chartTitle]}>Monthly Progress</Text>
                 </View>
                 
@@ -140,8 +142,8 @@ export default function StatsTab() {
                                         height: (data.books / maxBooks) * 80,
                                         width: barWidth,
                                         backgroundColor: index === monthlyData.length - 1 
-                                            ? designSystem.colors.primary 
-                                            : designSystem.colors.surfaceSecondary
+                                            ? theme.colors.primary 
+                                            : theme.colors.surfaceSecondary
                                     }
                                 ]} 
                             />
@@ -156,7 +158,7 @@ export default function StatsTab() {
 
     return (
         <View style={[commonStyles.container, { paddingBottom: insets.bottom }]}>
-            <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+            <View style={[commonStyles.header, { paddingTop: insets.top + theme.spacing.xl }]}>
                 <Text style={commonStyles.headerTitle}>Reading Stats</Text>
                 <Text style={commonStyles.headerSubtitle}>
                     Track your reading progress and achievements
@@ -166,7 +168,7 @@ export default function StatsTab() {
             <ScrollView 
                 style={styles.content} 
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: designSystem.spacing['4xl'] }}
+                contentContainerStyle={{ paddingBottom: theme.spacing['4xl'] }}
             >
                 {renderProgressCard()}
                 
@@ -176,28 +178,28 @@ export default function StatsTab() {
                         stats.totalBooks,
                         'All time',
                         BookOpen,
-                        designSystem.colors.primary
+                        theme.colors.primary
                     )}
                     {renderStatCard(
                         'This Month',
                         stats.booksThisMonth,
                         'Books completed',
                         Calendar,
-                        designSystem.colors.accent
+                        theme.colors.accent
                     )}
                     {renderStatCard(
                         'Pages Read',
                         stats.totalPages.toLocaleString(),
                         'All time',
                         TrendingUp,
-                        designSystem.colors.success
+                        theme.colors.success
                     )}
                     {renderStatCard(
                         'Current Streak',
                         `${stats.currentStreak} days`,
                         'Keep it up!',
                         Award,
-                        designSystem.colors.warning
+                        theme.colors.warning
                     )}
                 </View>
 
@@ -207,8 +209,8 @@ export default function StatsTab() {
                     <Text style={[commonStyles.subtitle, styles.achievementsTitle]}>Achievements</Text>
                     <View style={styles.achievementsList}>
                         <View style={styles.achievementItem}>
-                            <View style={[styles.achievementIcon, { backgroundColor: `${designSystem.colors.success}15` }]}>
-                                <Award size={20} color={designSystem.colors.success} />
+                            <View style={[styles.achievementIcon, { backgroundColor: `${theme.colors.success}15` }]}>
+                                <Award size={20} color={theme.colors.success} />
                             </View>
                             <View style={styles.achievementInfo}>
                                 <Text style={[commonStyles.body, styles.achievementName]}>First Book</Text>
@@ -217,8 +219,8 @@ export default function StatsTab() {
                         </View>
                         
                         <View style={styles.achievementItem}>
-                            <View style={[styles.achievementIcon, { backgroundColor: `${designSystem.colors.primary}15` }]}>
-                                <BookOpen size={20} color={designSystem.colors.primary} />
+                            <View style={[styles.achievementIcon, { backgroundColor: `${theme.colors.primary}15` }]}>
+                                <BookOpen size={20} color={theme.colors.primary} />
                             </View>
                             <View style={styles.achievementInfo}>
                                 <Text style={[commonStyles.body, styles.achievementName]}>Bookworm</Text>
@@ -227,8 +229,8 @@ export default function StatsTab() {
                         </View>
                         
                         <View style={styles.achievementItem}>
-                            <View style={[styles.achievementIcon, { backgroundColor: `${designSystem.colors.accent}15` }]}>
-                                <TrendingUp size={20} color={designSystem.colors.accent} />
+                            <View style={[styles.achievementIcon, { backgroundColor: `${theme.colors.accent}15` }]}>
+                                <TrendingUp size={20} color={theme.colors.accent} />
                             </View>
                             <View style={styles.achievementInfo}>
                                 <Text style={[commonStyles.body, styles.achievementName]}>Consistent Reader</Text>
@@ -245,93 +247,93 @@ export default function StatsTab() {
 const styles = StyleSheet.create({
     content: {
         flex: 1,
-        paddingHorizontal: designSystem.spacing.xl,
+        paddingHorizontal: theme.spacing.xl,
     },
     progressCard: {
-        marginBottom: designSystem.spacing.xl,
+        marginBottom: theme.spacing.xl,
     },
     progressHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: designSystem.spacing.lg,
+        marginBottom: theme.spacing.lg,
     },
     progressIcon: {
         width: 48,
         height: 48,
-        borderRadius: designSystem.borderRadius.xl,
-        backgroundColor: `${designSystem.colors.primary}15`,
+        borderRadius: theme.borderRadius.xl,
+        backgroundColor: `${theme.colors.primary}15`,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: designSystem.spacing.md,
+        marginRight: theme.spacing.md,
     },
     progressInfo: {
         flex: 1,
     },
     progressTitle: {
-        marginBottom: designSystem.spacing.xs,
+        marginBottom: theme.spacing.xs,
     },
     progressSubtitle: {
         // Uses default caption styles
     },
     progressPercentage: {
-        color: designSystem.colors.primary,
+        color: theme.colors.primary,
     },
     progressBarContainer: {
-        marginBottom: designSystem.spacing.md,
+        marginBottom: theme.spacing.md,
     },
     progressBarBackground: {
         height: 8,
-        backgroundColor: designSystem.colors.surfaceSecondary,
-        borderRadius: designSystem.borderRadius.sm,
+        backgroundColor: theme.colors.surfaceSecondary,
+        borderRadius: theme.borderRadius.sm,
         overflow: 'hidden',
     },
     progressBarFill: {
         height: '100%',
-        backgroundColor: designSystem.colors.primary,
-        borderRadius: designSystem.borderRadius.sm,
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.borderRadius.sm,
     },
     progressNote: {
         textAlign: 'center',
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        fontWeight: theme.typography.fontWeight.semibold,
     },
     statsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: designSystem.spacing.md,
-        marginBottom: designSystem.spacing.xl,
+        gap: theme.spacing.md,
+        marginBottom: theme.spacing.xl,
     },
     statCard: {
-        width: (screenWidth - (designSystem.spacing.xl * 2) - designSystem.spacing.md) / 2,
+        width: (screenWidth - (theme.spacing.xl * 2) - theme.spacing.md) / 2,
         alignItems: 'center',
-        paddingVertical: designSystem.spacing['2xl'],
+        paddingVertical: theme.spacing['2xl'],
     },
     statIcon: {
         width: 48,
         height: 48,
-        borderRadius: designSystem.borderRadius.xl,
+        borderRadius: theme.borderRadius.xl,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: designSystem.spacing.md,
+        marginBottom: theme.spacing.md,
     },
     statValue: {
-        marginBottom: designSystem.spacing.xs,
+        marginBottom: theme.spacing.xs,
         textAlign: 'center',
     },
     statTitle: {
-        marginBottom: designSystem.spacing.xs,
+        marginBottom: theme.spacing.xs,
         textAlign: 'center',
     },
     statSubtitle: {
         textAlign: 'center',
     },
     chartCard: {
-        marginBottom: designSystem.spacing.xl,
+        marginBottom: theme.spacing.xl,
     },
     chartHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: designSystem.spacing.lg,
-        gap: designSystem.spacing.md,
+        marginBottom: theme.spacing.lg,
+        gap: theme.spacing.md,
     },
     chartTitle: {
         // Uses default subtitle styles
@@ -341,34 +343,34 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         justifyContent: 'space-between',
         height: 120,
-        paddingHorizontal: designSystem.spacing.md,
+        paddingHorizontal: theme.spacing.md,
     },
     chartBar: {
         alignItems: 'center',
         flex: 1,
     },
     bar: {
-        borderRadius: designSystem.borderRadius.xs,
-        marginBottom: designSystem.spacing.sm,
+        borderRadius: theme.borderRadius.xs,
+        marginBottom: theme.spacing.sm,
     },
     barValue: {
-        fontSize: designSystem.typography.fontSize.xs,
-        fontWeight: designSystem.typography.fontWeight.semibold,
-        color: designSystem.colors.textPrimary,
-        marginBottom: designSystem.spacing.xs,
+        fontSize: theme.typography.fontSize.xs,
+        fontWeight: theme.typography.fontWeight.semibold,
+        color: theme.colors.textPrimary,
+        marginBottom: theme.spacing.xs,
     },
     barLabel: {
-        fontSize: designSystem.typography.fontSize.xs,
-        color: designSystem.colors.textSecondary,
+        fontSize: theme.typography.fontSize.xs,
+        color: theme.colors.textSecondary,
     },
     achievementsCard: {
         // Uses default card styles
     },
     achievementsTitle: {
-        marginBottom: designSystem.spacing.lg,
+        marginBottom: theme.spacing.lg,
     },
     achievementsList: {
-        gap: designSystem.spacing.lg,
+        gap: theme.spacing.lg,
     },
     achievementItem: {
         flexDirection: 'row',
@@ -377,17 +379,17 @@ const styles = StyleSheet.create({
     achievementIcon: {
         width: 40,
         height: 40,
-        borderRadius: designSystem.borderRadius.xl,
+        borderRadius: theme.borderRadius.xl,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: designSystem.spacing.md,
+        marginRight: theme.spacing.md,
     },
     achievementInfo: {
         flex: 1,
     },
     achievementName: {
-        marginBottom: designSystem.spacing.xs,
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        marginBottom: theme.spacing.xs,
+        fontWeight: theme.typography.fontWeight.semibold,
     },
     achievementDesc: {
         // Uses default caption styles

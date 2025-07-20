@@ -17,7 +17,22 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// Light theme
+// 1. Define the design system structure (keys, not values)
+const designSystemStructure = {
+  colors: {},
+  typography: {
+    fontSize: {},
+    fontWeight: {},
+    lineHeight: {},
+  },
+  spacing: {},
+  borderRadius: {},
+  shadows: {},
+  components: {},
+};
+
+// 2. Generate lightTheme and darkTheme based on the structure and values (merge from old designSystem and theme)
+// (Keep your existing lightTheme and darkTheme definitions, but ensure they follow the designSystem structure)
 export const lightTheme = {
     colors: {
         // Primary colors - warm browns and creams
@@ -87,6 +102,11 @@ export const lightTheme = {
             medium  : '500',
             semibold: '600',
             bold    : '700',
+        },
+        lineHeight: {
+            tight: 1.2,
+            normal: 1.4,
+            relaxed: 1.6,
         },
     },
   
@@ -193,7 +213,7 @@ export const darkTheme = {
     },
   
     // Typography (same as light)
-    typography: lightTheme.typography,
+    typography: { ...lightTheme.typography },
   
     // Spacing (same as light)
     spacing: lightTheme.spacing,
@@ -315,65 +335,102 @@ export const useTheme = () => {
 // Legacy theme export for backward compatibility
 export const theme = lightTheme;
 
-// Book corner specific styles (updated to use theme)
-export const getBookCornerStyles = (theme: typeof lightTheme) => ({
-    // Paper-like backgrounds
-    paper: {
-        backgroundColor: theme.colors.surface,
-        borderRadius   : theme.borderRadius.lg,
-        ...theme.shadows.sm,
-        borderWidth    : 1,
-        borderColor    : theme.colors.border,
-    },
-  
-    // Book spine effect
-    bookSpine: {
-        backgroundColor  : theme.colors.primary,
-        borderRadius     : theme.borderRadius.sm,
-        paddingHorizontal: theme.spacing.sm,
-        paddingVertical  : theme.spacing.xs,
-        ...theme.shadows.md,
-    },
-  
-    // Vintage book cover
-    vintageCover: {
-        backgroundColor: theme.colors.bookSepia,
-        borderRadius   : theme.borderRadius.lg,
-        padding        : theme.spacing.md,
-        ...theme.shadows.lg,
-        borderWidth    : 2,
-        borderColor    : theme.colors.bookGold,
-    },
-  
-    // Cozy card
-    cozyCard: {
-        backgroundColor: theme.colors.surfaceSecondary,
-        borderRadius   : theme.borderRadius.xl,
-        padding        : theme.spacing.lg,
-        ...theme.shadows.md,
-        borderWidth    : 1,
-        borderColor    : theme.colors.borderLight,
-    },
-  
-    // Warm button
-    warmButton: {
-        backgroundColor  : theme.colors.primary,
-        borderRadius     : theme.borderRadius.lg,
-        paddingVertical  : theme.spacing.md,
-        paddingHorizontal: theme.spacing.lg,
-        ...theme.shadows.sm,
-    },
-  
-    // Book page effect
-    bookPage: {
-        backgroundColor: theme.colors.background,
-        borderRadius   : theme.borderRadius.md,
-        padding        : theme.spacing.md,
-        borderWidth    : 1,
-        borderColor    : theme.colors.border,
-        ...theme.shadows.sm,
-    },
+// 3. Refactor commonStyles to be a function that takes the theme as an argument
+export const getCommonStyles = (theme: typeof lightTheme) => ({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  header: {
+    backgroundColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing['2xl'],
+    paddingBottom: theme.spacing.xl,
+    borderBottomLeftRadius: theme.borderRadius['2xl'],
+    borderBottomRightRadius: theme.borderRadius['2xl'],
+    ...theme.shadows.md,
+  },
+  headerTitle: {
+    fontSize: theme.typography.fontSize['3xl'],
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.xs,
+  },
+  headerSubtitle: {
+    fontSize: theme.typography.fontSize.base,
+    color: theme.colors.textSecondary,
+    lineHeight: theme.typography.lineHeight.normal * theme.typography.fontSize.base,
+  },
+  card: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    ...theme.shadows.md,
+  },
+  primaryButton: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...theme.shadows.sm,
+  },
+  primaryButtonText: {
+    color: theme.colors.surface,
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: theme.typography.fontWeight.semibold,
+  },
+  secondaryButton: {
+    backgroundColor: theme.colors.surfaceSecondary,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  secondaryButtonText: {
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: theme.typography.fontWeight.semibold,
+  },
+  title: {
+    fontSize: theme.typography.fontSize['2xl'],
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.textPrimary,
+    lineHeight: theme.typography.lineHeight.tight * theme.typography.fontSize['2xl'],
+  },
+  subtitle: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.textSecondary,
+    lineHeight: theme.typography.lineHeight.normal * theme.typography.fontSize.lg,
+  },
+  body: {
+    fontSize: theme.typography.fontSize.base,
+    color: theme.colors.textPrimary,
+    lineHeight: theme.typography.lineHeight.normal * theme.typography.fontSize.base,
+  },
+  caption: {
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.textSecondary,
+    lineHeight: theme.typography.lineHeight.normal * theme.typography.fontSize.sm,
+  },
+  section: {
+    marginBottom: theme.spacing['2xl'],
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  spaceBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
-
-// Legacy bookCornerStyles export for backward compatibility
-export const bookCornerStyles = getBookCornerStyles(lightTheme);

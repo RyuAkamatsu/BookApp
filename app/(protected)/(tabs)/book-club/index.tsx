@@ -11,8 +11,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Users, Plus, Hash, BookOpen, MessageCircle, Heart } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
-import { getUserBookClubs, createBookClub, joinBookClub } from '@/utils/firebase';
-import { designSystem, commonStyles } from '@/utils/designSystem';
+import { getUserBookClubs, createBookClub, joinBookClub } from '@/utils/firebase/firebase';
+import { useTheme, getCommonStyles } from '@/styling/theme';
 import Modal from 'react-native-modal';
 
 interface BookClub {
@@ -34,6 +34,8 @@ export default function BookClubTab() {
     const [joinCode, setJoinCode] = useState('');
     const { user } = useAuth();
     const insets = useSafeAreaInsets();
+    const { theme } = useTheme();
+    const commonStyles = getCommonStyles(theme);
 
     useEffect(() => {
         loadBookClubs();
@@ -112,25 +114,25 @@ export default function BookClubTab() {
         <TouchableOpacity key={club.id} style={[commonStyles.card, styles.clubCard]}>
             <View style={styles.clubHeader}>
                 <View style={styles.clubIcon}>
-                    <Users size={24} color={designSystem.colors.primary} />
+                    <Users size={24} color={theme.colors.primary} />
                 </View>
                 <View style={styles.clubInfo}>
                     <Text style={[commonStyles.subtitle, styles.clubName]}>{club.name}</Text>
                     <Text style={[commonStyles.caption, styles.clubDescription]}>{club.description}</Text>
                 </View>
                 <View style={styles.clubCode}>
-                    <Hash size={16} color={designSystem.colors.textSecondary} />
+                    <Hash size={16} color={theme.colors.textSecondary} />
                     <Text style={styles.codeText}>{club.code}</Text>
                 </View>
             </View>
             
             <View style={styles.clubStats}>
                 <View style={styles.statItem}>
-                    <Users size={16} color={designSystem.colors.textSecondary} />
+                    <Users size={16} color={theme.colors.textSecondary} />
                     <Text style={styles.statText}>{club.members.length} members</Text>
                 </View>
                 <View style={styles.statItem}>
-                    <BookOpen size={16} color={designSystem.colors.textSecondary} />
+                    <BookOpen size={16} color={theme.colors.textSecondary} />
                     <Text style={styles.statText}>{club.recommendations.length} recommendations</Text>
                 </View>
             </View>
@@ -140,7 +142,7 @@ export default function BookClubTab() {
                     <Text style={[commonStyles.caption, styles.activityTitle]}>Recent Activity</Text>
                     {club.recommendations.slice(0, 2).map((rec, index) => (
                         <View key={index} style={styles.activityItem}>
-                            <MessageCircle size={14} color={designSystem.colors.textSecondary} />
+                            <MessageCircle size={14} color={theme.colors.textSecondary} />
                             <Text style={styles.activityText} numberOfLines={1}>
                                 New recommendation: {rec.book.title}
                             </Text>
@@ -154,7 +156,7 @@ export default function BookClubTab() {
     const renderEmptyState = () => (
         <View style={[commonStyles.center, styles.emptyState]}>
             <View style={styles.emptyStateIcon}>
-                <Users size={48} color={designSystem.colors.textMuted} />
+                <Users size={48} color={theme.colors.textMuted} />
             </View>
             <Text style={[commonStyles.title, styles.emptyTitle]}>Join the Community</Text>
             <Text style={[commonStyles.body, styles.emptySubtitle]}>
@@ -165,7 +167,7 @@ export default function BookClubTab() {
 
     return (
         <View style={[commonStyles.container, { paddingBottom: insets.bottom }]}>
-            <View style={[commonStyles.header, { paddingTop: insets.top + designSystem.spacing.xl }]}>
+            <View style={[commonStyles.header, { paddingTop: insets.top + theme.spacing.xl }]}>
                 <Text style={commonStyles.headerTitle}>My Book Club</Text>
                 <Text style={commonStyles.headerSubtitle}>
                     Connect with fellow readers and share recommendations
@@ -177,8 +179,8 @@ export default function BookClubTab() {
                     style={[commonStyles.primaryButton, styles.actionButton]}
                     onPress={() => setShowCreateModal(true)}
                 >
-                    <Plus size={20} color={designSystem.colors.surface} />
-                    <Text style={[commonStyles.primaryButtonText, { marginLeft: designSystem.spacing.sm }]}>
+                    <Plus size={20} color={theme.colors.surface} />
+                    <Text style={[commonStyles.primaryButtonText, { marginLeft: theme.spacing.sm }]}>
                         Create Club
                     </Text>
                 </TouchableOpacity>
@@ -187,8 +189,8 @@ export default function BookClubTab() {
                     style={[commonStyles.secondaryButton, styles.actionButton]}
                     onPress={() => setShowJoinModal(true)}
                 >
-                    <Hash size={20} color={designSystem.colors.primary} />
-                    <Text style={[commonStyles.secondaryButtonText, { marginLeft: designSystem.spacing.sm }]}>
+                    <Hash size={20} color={theme.colors.primary} />
+                    <Text style={[commonStyles.secondaryButtonText, { marginLeft: theme.spacing.sm }]}>
                         Join Club
                     </Text>
                 </TouchableOpacity>
@@ -299,9 +301,9 @@ export default function BookClubTab() {
 const styles = StyleSheet.create({
     quickActions: {
         flexDirection: 'row',
-        paddingHorizontal: designSystem.spacing.xl,
-        paddingVertical: designSystem.spacing.lg,
-        gap: designSystem.spacing.md,
+        paddingHorizontal: theme.spacing.xl,
+        paddingVertical: theme.spacing.lg,
+        gap: theme.spacing.md,
     },
     actionButton: {
         flex: 1,
@@ -311,140 +313,140 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        paddingHorizontal: designSystem.spacing.xl,
+        paddingHorizontal: theme.spacing.xl,
     },
     clubsList: {
-        paddingBottom: designSystem.spacing['4xl'],
+        paddingBottom: theme.spacing['4xl'],
     },
     sectionTitle: {
-        marginBottom: designSystem.spacing.lg,
+        marginBottom: theme.spacing.lg,
     },
     clubCard: {
-        marginBottom: designSystem.spacing.lg,
+        marginBottom: theme.spacing.lg,
     },
     clubHeader: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginBottom: designSystem.spacing.md,
+        marginBottom: theme.spacing.md,
     },
     clubIcon: {
         width: 48,
         height: 48,
-        borderRadius: designSystem.borderRadius.xl,
-        backgroundColor: `${designSystem.colors.primary}15`,
+        borderRadius: theme.borderRadius.xl,
+        backgroundColor: `${theme.colors.primary}15`,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: designSystem.spacing.md,
+        marginRight: theme.spacing.md,
     },
     clubInfo: {
         flex: 1,
     },
     clubName: {
-        marginBottom: designSystem.spacing.xs,
+        marginBottom: theme.spacing.xs,
     },
     clubDescription: {
-        lineHeight: designSystem.typography.lineHeight.normal * designSystem.typography.fontSize.sm,
+        lineHeight: theme.typography.lineHeight.normal * theme.typography.fontSize.sm,
     },
     clubCode: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: designSystem.colors.surfaceSecondary,
-        paddingHorizontal: designSystem.spacing.sm,
-        paddingVertical: designSystem.spacing.xs,
-        borderRadius: designSystem.borderRadius.md,
-        gap: designSystem.spacing.xs,
+        backgroundColor: theme.colors.surfaceSecondary,
+        paddingHorizontal: theme.spacing.sm,
+        paddingVertical: theme.spacing.xs,
+        borderRadius: theme.borderRadius.md,
+        gap: theme.spacing.xs,
     },
     codeText: {
-        fontSize: designSystem.typography.fontSize.xs,
-        fontWeight: designSystem.typography.fontWeight.semibold,
-        color: designSystem.colors.textSecondary,
+        fontSize: theme.typography.fontSize.xs,
+        fontWeight: theme.typography.fontWeight.semibold,
+        color: theme.colors.textSecondary,
     },
     clubStats: {
         flexDirection: 'row',
-        gap: designSystem.spacing.lg,
-        marginBottom: designSystem.spacing.md,
+        gap: theme.spacing.lg,
+        marginBottom: theme.spacing.md,
     },
     statItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: designSystem.spacing.xs,
+        gap: theme.spacing.xs,
     },
     statText: {
-        fontSize: designSystem.typography.fontSize.sm,
-        color: designSystem.colors.textSecondary,
+        fontSize: theme.typography.fontSize.sm,
+        color: theme.colors.textSecondary,
     },
     recentActivity: {
         borderTopWidth: 1,
-        borderTopColor: designSystem.colors.borderLight,
-        paddingTop: designSystem.spacing.md,
+        borderTopColor: theme.colors.borderLight,
+        paddingTop: theme.spacing.md,
     },
     activityTitle: {
-        marginBottom: designSystem.spacing.sm,
-        fontWeight: designSystem.typography.fontWeight.semibold,
+        marginBottom: theme.spacing.sm,
+        fontWeight: theme.typography.fontWeight.semibold,
     },
     activityItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: designSystem.spacing.sm,
-        marginBottom: designSystem.spacing.xs,
+        gap: theme.spacing.sm,
+        marginBottom: theme.spacing.xs,
     },
     activityText: {
-        fontSize: designSystem.typography.fontSize.sm,
-        color: designSystem.colors.textSecondary,
+        fontSize: theme.typography.fontSize.sm,
+        color: theme.colors.textSecondary,
         flex: 1,
     },
     emptyState: {
         flex: 1,
-        paddingHorizontal: designSystem.spacing['4xl'],
-        paddingVertical: designSystem.spacing['5xl'],
+        paddingHorizontal: theme.spacing['4xl'],
+        paddingVertical: theme.spacing['5xl'],
     },
     emptyStateIcon: {
         width: 80,
         height: 80,
-        borderRadius: designSystem.borderRadius.full,
-        backgroundColor: designSystem.colors.surfaceSecondary,
+        borderRadius: theme.borderRadius.full,
+        backgroundColor: theme.colors.surfaceSecondary,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: designSystem.spacing['2xl'],
+        marginBottom: theme.spacing['2xl'],
     },
     emptyTitle: {
         textAlign: 'center',
-        marginBottom: designSystem.spacing.md,
+        marginBottom: theme.spacing.md,
     },
     emptySubtitle: {
         textAlign: 'center',
-        marginBottom: designSystem.spacing['4xl'],
+        marginBottom: theme.spacing['4xl'],
     },
     modal: {
         justifyContent: 'center',
-        margin: designSystem.spacing.xl,
+        margin: theme.spacing.xl,
     },
     modalContent: {
-        backgroundColor: designSystem.colors.surface,
-        borderRadius: designSystem.borderRadius.xl,
-        padding: designSystem.spacing['2xl'],
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.xl,
+        padding: theme.spacing['2xl'],
     },
     modalTitle: {
         textAlign: 'center',
-        marginBottom: designSystem.spacing['2xl'],
+        marginBottom: theme.spacing['2xl'],
     },
     inputContainer: {
-        marginBottom: designSystem.spacing.lg,
+        marginBottom: theme.spacing.lg,
     },
     label: {
-        fontSize: designSystem.typography.fontSize.sm,
-        fontWeight: designSystem.typography.fontWeight.semibold,
-        color: designSystem.colors.textPrimary,
-        marginBottom: designSystem.spacing.sm,
+        fontSize: theme.typography.fontSize.sm,
+        fontWeight: theme.typography.fontWeight.semibold,
+        color: theme.colors.textPrimary,
+        marginBottom: theme.spacing.sm,
     },
     input: {
         borderWidth: 1,
-        borderColor: designSystem.colors.border,
-        borderRadius: designSystem.borderRadius.md,
-        paddingHorizontal: designSystem.spacing.lg,
-        paddingVertical: designSystem.spacing.md,
-        fontSize: designSystem.typography.fontSize.base,
-        backgroundColor: designSystem.colors.surface,
+        borderColor: theme.colors.border,
+        borderRadius: theme.borderRadius.md,
+        paddingHorizontal: theme.spacing.lg,
+        paddingVertical: theme.spacing.md,
+        fontSize: theme.typography.fontSize.base,
+        backgroundColor: theme.colors.surface,
     },
     textArea: {
         height: 80,
@@ -452,8 +454,8 @@ const styles = StyleSheet.create({
     },
     modalActions: {
         flexDirection: 'row',
-        gap: designSystem.spacing.md,
-        marginTop: designSystem.spacing.lg,
+        gap: theme.spacing.md,
+        marginTop: theme.spacing.lg,
     },
     modalButton: {
         flex: 1,
