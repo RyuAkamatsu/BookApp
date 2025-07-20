@@ -1,6 +1,6 @@
-# BookApp - Authentication System
+# TheBookNook - Authentication System
 
-This BookApp now includes a complete authentication system with Firebase integration, allowing users to register, log in, and sync their book collections across devices.
+This TheBookNook app now includes a complete authentication system with Firebase integration, allowing users to register, log in, and sync their book collections across devices.
 
 ## Features Added
 

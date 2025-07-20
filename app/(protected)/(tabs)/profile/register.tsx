@@ -89,7 +89,7 @@ export default function RegisterScreen() {
                 await markFirstLoadComplete();
                 // Remove skipped registration flag if it exists
                 try {
-                    await AsyncStorage.removeItem('bookapp_skipped_registration');
+                    await AsyncStorage.removeItem('thebooknook_skipped_registration');
                 } catch (error) {
                     console.error('Error removing skipped registration flag:', error);
                 }
@@ -113,7 +113,7 @@ export default function RegisterScreen() {
         await markFirstLoadComplete();
         // Mark that user has skipped registration
         try {
-            await AsyncStorage.setItem('bookapp_skipped_registration', 'true');
+            await AsyncStorage.setItem('thebooknook_skipped_registration', 'true');
         } catch (error) {
             console.error('Error marking skipped registration:', error);
         }
@@ -133,7 +133,7 @@ export default function RegisterScreen() {
                     {isFirstLoad && (
                         <View style={ styles.firstLoadMessage }>
                             <Text style={ styles.firstLoadText }>
-                                Welcome to BookApp! You can skip registration for now and complete it anytime from the profile page.
+                                Welcome to TheBookNook! You can skip registration for now and complete it anytime from the profile page.
                             </Text>
                         </View>
                     )}

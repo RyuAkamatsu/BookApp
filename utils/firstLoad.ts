@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const FIRST_LOAD_KEY = 'bookapp_first_load';
+const FIRST_LOAD_KEY = 'thebooknook_first_load';
 
 export const checkFirstLoad = async (): Promise<boolean> => {
     try {

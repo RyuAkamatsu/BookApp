@@ -121,7 +121,7 @@ export const loginUser = async (username: string, password: string) => {
 // Dev bypass function - only for development
 export const createMockUser = async () => {
     try {
-        const mockEmail = `dev-user-${Date.now()}@bookapp.dev`;
+        const mockEmail = `dev-user-${Date.now()}@thebooknook.dev`;
         const mockPassword = 'DevPassword123!';
         const mockUsername = `DevUser${Date.now()}`;
         

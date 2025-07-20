@@ -4,8 +4,9 @@ const isProd = process.env.APP_ENV === 'production' || process.env.NODE_ENV === 
 
 export default ({ config }) => ({
   expo: {
-    name: isProd ? 'BookApp' : 'BookApp (Dev)',
-    slug: isProd ? 'bookapp' : 'bookapp-dev',
+    name: isProd ? 'TheBookNook' : 'TheBookNook (Dev)',
+    displayName: isProd ? 'TheBookNook' : 'TheBookNook (Dev)',
+    slug: isProd ? 'thebooknook' : 'thebooknook-dev',
     version: isProd ? '1.0.0' : '0.0.1',
     orientation: 'portrait',
     icon: './assets/images/icon.png',

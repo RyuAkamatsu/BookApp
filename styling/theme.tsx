@@ -256,7 +256,7 @@ export const darkTheme = {
 };
 
 // Theme storage utilities
-const THEME_MODE_KEY = 'bookapp_theme_mode';
+const THEME_MODE_KEY = 'thebooknook_theme_mode';
 
 export const getStoredThemeMode = async (): Promise<ThemeMode> => {
     try {
