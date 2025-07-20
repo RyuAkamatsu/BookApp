@@ -7,7 +7,7 @@ import {
     Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BarChart3, BookOpen, Calendar, Target, TrendingUp, Award } from 'lucide-react-native';
+import { ChartBar as BarChart3, BookOpen, Calendar, Target, TrendingUp, Award } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserProfile } from '@/utils/firebase';
 import { designSystem, commonStyles } from '@/utils/designSystem';

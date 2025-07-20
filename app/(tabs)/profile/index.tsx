@@ -8,7 +8,7 @@ import {
     Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { User, Settings, HelpCircle, Star, Share, BookOpen, LogOut, Sun, Moon, Monitor } from 'lucide-react-native';
+import { User, Settings, CircleHelp as HelpCircle, Star, Share, BookOpen, LogOut, Sun, Moon, Monitor } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
 import { logoutUser, getUserProfile } from '@/utils/firebase';
 import { router } from 'expo-router';

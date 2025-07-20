@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { BookOpen, Users, BarChart3, User } from 'lucide-react-native';
+import { BookOpen, Users, ChartBar as BarChart3, User } from 'lucide-react-native';
 import AuthWrapper from '@/components/AuthWrapper';
 import { designSystem } from '@/utils/designSystem';
 
