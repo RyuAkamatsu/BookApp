@@ -55,7 +55,7 @@ appleProvider.addScope('email');
 appleProvider.addScope('name');
 
 // Authentication functions
-export const registerUser = async (email: string, password: string, username: string) => {
+export const registerUser = async (username: string, email: string, password: string) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const { user } = userCredential;
@@ -84,7 +84,7 @@ export const registerUser = async (email: string, password: string, username: st
     }
 };
 
-export const loginUser = async (email: string, password: string) => {
+export const loginUserByEmail = async (email: string, password: string) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         return { success: true, user: userCredential.user };
@@ -93,6 +93,91 @@ export const loginUser = async (email: string, password: string) => {
     }
 };
 
+export const loginUser = async (username: string, password: string) => {
+    try {
+        // First, find the user by username
+        const usersQuery = query(
+            collection(db, 'users'),
+            where('username', '==', username)
+        );
+        
+        const userSnapshot = await getDocs(usersQuery);
+        
+        if (userSnapshot.empty) {
+            return { success: false, error: 'Username not found' };
+        }
+        
+        const userDoc = userSnapshot.docs[0];
+        const userData = userDoc.data();
+        
+        // Now sign in with the email
+        const userCredential = await signInWithEmailAndPassword(auth, userData.email, password);
+        return { success: true, user: userCredential.user };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+};
+
+// Dev bypass function - only for development
+export const createMockUser = async () => {
+    try {
+        const mockEmail = `dev-user-${Date.now()}@bookapp.dev`;
+        const mockPassword = 'DevPassword123!';
+        const mockUsername = `DevUser${Date.now()}`;
+        
+        const userCredential = await createUserWithEmailAndPassword(auth, mockEmail, mockPassword);
+        const { user } = userCredential;
+        
+        // Create mock user profile
+        await setDoc(doc(db, 'users', user.uid), {
+            username: mockUsername,
+            email: mockEmail,
+            createdAt: new Date(),
+            books: [
+                {
+                    id: 'mock-book-1',
+                    title: 'The Great Gatsby',
+                    author: 'F. Scott Fitzgerald',
+                    coverUrl: 'https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg',
+                    genre: 'Classic Literature',
+                    publishedYear: 1925,
+                    libraryName: 'My Classics',
+                    isRead: true,
+                    isToRead: false,
+                    scannedAt: new Date().toISOString(),
+                    description: 'A classic American novel set in the Jazz Age.'
+                },
+                {
+                    id: 'mock-book-2',
+                    title: 'To Kill a Mockingbird',
+                    author: 'Harper Lee',
+                    coverUrl: 'https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg',
+                    genre: 'Fiction',
+                    publishedYear: 1960,
+                    libraryName: 'My Classics',
+                    isRead: false,
+                    isToRead: true,
+                    scannedAt: new Date().toISOString(),
+                    description: 'A gripping tale of racial injustice and childhood innocence.'
+                }
+            ],
+            bookClubs: [],
+            stats: {
+                totalBooks: 15,
+                totalPages: 4200,
+                booksThisMonth: 3,
+                pagesThisMonth: 890,
+                readingGoal: 24,
+                currentStreak: 7,
+                longestStreak: 21
+            }
+        });
+        
+        return { success: true, user, username: mockUsername };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+};
 export const signInWithGoogle = async () => {
     try {
         const result = await signInWithPopup(auth, googleProvider);

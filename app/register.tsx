@@ -13,7 +13,7 @@ import {
 import { router } from 'expo-router';
 import { registerUser, signInWithGoogle, signInWithFacebook, signInWithApple } from '@/utils/firebase';
 import { useAuth } from '@/hooks/useAuth';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { User, Mail, Lock, Eye, EyeOff, AtSign } from 'lucide-react-native';
 import { designSystem, commonStyles } from '@/utils/designSystem';
 
 export default function RegisterScreen() {
@@ -72,7 +72,7 @@ export default function RegisterScreen() {
         setLoading(true);
 
         try {
-            const result = await registerUser(email, password, username);
+            const result = await registerUser(username, email, password);
             if (result.success && result.user) {
                 setUser(result.user);
                 router.replace('/(tabs)/library');
@@ -129,15 +129,15 @@ export default function RegisterScreen() {
 
                     <View style={styles.form}>
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Display Name</Text>
+                            <Text style={styles.label}>Username</Text>
                             <View style={styles.inputWrapper}>
                                 <User size={20} color={designSystem.colors.textSecondary} style={styles.inputIcon} />
                                 <TextInput
                                     style={styles.input}
                                     value={username}
                                     onChangeText={setUsername}
-                                    placeholder="Enter your display name"
-                                    autoCapitalize="words"
+                                    placeholder="Choose a username"
+                                    autoCapitalize="none"
                                     autoCorrect={false}
                                 />
                             </View>
@@ -146,7 +146,7 @@ export default function RegisterScreen() {
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Email</Text>
                             <View style={styles.inputWrapper}>
-                                <Mail size={20} color={designSystem.colors.textSecondary} style={styles.inputIcon} />
+                                <AtSign size={20} color={designSystem.colors.textSecondary} style={styles.inputIcon} />
                                 <TextInput
                                     style={styles.input}
                                     value={email}

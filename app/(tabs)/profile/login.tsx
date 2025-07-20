@@ -16,20 +16,20 @@ import { useAuth } from '@/hooks/useAuth';
 import { syncDatabaseWithFirebase } from '@/utils/syncDatabase';
 
 export default function LoginScreen() {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const { setUser } = useAuth();
 
     const handleLogin = async () => {
-        if (!email || !password) {
+        if (!username || !password) {
             Alert.alert('Error', 'Please fill in all fields');
             return;
         }
 
         setLoading(true);
         try {
-            const result = await loginUser(email, password);
+            const result = await loginUser(username, password);
             if (result.success && result.user) {
                 setUser(result.user);
         
@@ -66,13 +66,12 @@ export default function LoginScreen() {
 
                     <View style={ styles.form }>
                         <View style={ styles.inputContainer }>
-                            <Text style={ styles.label }>Email</Text>
+                            <Text style={ styles.label }>Username</Text>
                             <TextInput
                                 style={ styles.input }
-                                value={ email }
-                                onChangeText={ setEmail }
-                                placeholder="Enter your email"
-                                keyboardType="email-address"
+                                value={ username }
+                                onChangeText={ setUsername }
+                                placeholder="Enter your username"
                                 autoCapitalize="none"
                                 autoCorrect={ false }
                             />

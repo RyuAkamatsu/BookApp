@@ -18,21 +18,21 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { designSystem, commonStyles } from '@/utils/designSystem';
 
 export default function LoginScreen() {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const { setUser } = useAuth();
 
     const handleLogin = async () => {
-        if (!email || !password) {
+        if (!username || !password) {
             Alert.alert('Error', 'Please fill in all fields');
             return;
         }
 
         setLoading(true);
         try {
-            const result = await loginUser(email, password);
+            const result = await loginUser(username, password);
             if (result.success && result.user) {
                 setUser(result.user);
                 
@@ -53,6 +53,25 @@ export default function LoginScreen() {
         }
     };
 
+    const handleDevBypass = async () => {
+        if (__DEV__) {
+            setLoading(true);
+            try {
+                const result = await createMockUser();
+                if (result.success && result.user) {
+                    setUser(result.user);
+                    Alert.alert('Dev Login', `Logged in as ${result.username}`);
+                    router.replace('/(tabs)/library');
+                } else {
+                    Alert.alert('Dev Login Failed', result.error);
+                }
+            } catch (error) {
+                Alert.alert('Error', 'Failed to create dev user');
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
     const handleSocialLogin = async (provider: 'google' | 'facebook' | 'apple') => {
         setLoading(true);
         try {
@@ -96,15 +115,14 @@ export default function LoginScreen() {
 
                     <View style={styles.form}>
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Email</Text>
+                            <Text style={styles.label}>Username</Text>
                             <View style={styles.inputWrapper}>
-                                <Mail size={20} color={designSystem.colors.textSecondary} style={styles.inputIcon} />
+                                <User size={20} color={designSystem.colors.textSecondary} style={styles.inputIcon} />
                                 <TextInput
                                     style={styles.input}
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    placeholder="Enter your email"
-                                    keyboardType="email-address"
+                                    value={username}
+                                    onChangeText={setUsername}
+                                    placeholder="Enter your username"
                                     autoCapitalize="none"
                                     autoCorrect={false}
                                 />
@@ -178,6 +196,18 @@ export default function LoginScreen() {
                                 <Text style={[styles.socialButtonText, { color: designSystem.colors.surface }]}>Apple</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {__DEV__ && (
+                            <TouchableOpacity
+                                style={[styles.devButton, loading && styles.disabledButton]}
+                                onPress={handleDevBypass}
+                                disabled={loading}
+                            >
+                                <Text style={styles.devButtonText}>
+                                    🚀 Dev Bypass (Create Mock User)
+                                </Text>
+                            </TouchableOpacity>
+                        )}
 
                         <View style={styles.footer}>
                             <Text style={styles.footerText}>Don't have an account? </Text>
@@ -312,5 +342,19 @@ const styles = StyleSheet.create({
         fontSize: designSystem.typography.fontSize.sm,
         fontWeight: designSystem.typography.fontWeight.semibold,
         color: designSystem.colors.primary,
+    },
+    devButton: {
+        backgroundColor: '#FF6B35',
+        borderRadius: designSystem.borderRadius.md,
+        paddingVertical: designSystem.spacing.md,
+        alignItems: 'center',
+        marginTop: designSystem.spacing.sm,
+        borderWidth: 2,
+        borderColor: '#FF6B35',
+    },
+    devButtonText: {
+        color: designSystem.colors.surface,
+        fontSize: designSystem.typography.fontSize.base,
+        fontWeight: designSystem.typography.fontWeight.semibold,
     },
 });
