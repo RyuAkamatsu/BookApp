@@ -39,6 +39,7 @@ export default function StatsTab() {
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const commonStyles = getCommonStyles(theme);
+    const styles = getStyles(theme);
 
     useEffect(() => {
         loadStats();
@@ -244,7 +245,7 @@ export default function StatsTab() {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
     content: {
         flex: 1,
         paddingHorizontal: theme.spacing.xl,

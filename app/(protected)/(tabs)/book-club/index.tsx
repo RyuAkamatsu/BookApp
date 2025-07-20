@@ -36,6 +36,7 @@ export default function BookClubTab() {
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const commonStyles = getCommonStyles(theme);
+    const styles = getStyles(theme);
 
     useEffect(() => {
         loadBookClubs();
@@ -298,7 +299,7 @@ export default function BookClubTab() {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
     quickActions: {
         flexDirection: 'row',
         paddingHorizontal: theme.spacing.xl,

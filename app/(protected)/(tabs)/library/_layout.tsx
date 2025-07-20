@@ -5,8 +5,7 @@ export default function LibraryLayout() {
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="scan" />
-            <Stack.Screen name="manual-add" />
-            <Stack.Screen name="book-details" />
+            <Stack.Screen name="manual-book-lookup" />
         </Stack>
     );
 }

@@ -1,10 +1,16 @@
 import { Tabs } from 'expo-router';
-import { BookOpen, Users, ChartBar as BarChart3, User } from 'lucide-react-native';
+import { BookOpen, Users, User, ChartLine, ChartPie } from 'lucide-react-native';
 import AuthWrapper from '@/components/AuthWrapper';
 import { useTheme } from '@/styling/theme';
 
 export default function TabLayout() {
-    const { theme } = useTheme();
+    const { theme, isLoading } = useTheme();
+    
+    // Don't render tabs until theme is loaded
+    if (isLoading) {
+        return null;
+    }
+    
     return (
         <AuthWrapper>
             <Tabs
@@ -37,6 +43,15 @@ export default function TabLayout() {
                 }}
             >
                 <Tabs.Screen
+                    name="dashboard"
+                    options={{
+                        title: 'Dashboard',
+                        tabBarIcon: ({ size, color }) => (
+                            <ChartLine size={size} color={color} />
+                        )
+                    }}
+                />
+                <Tabs.Screen
                     name="library"
                     options={{
                         title: 'My Library',
@@ -59,7 +74,7 @@ export default function TabLayout() {
                     options={{
                         title: 'Stats',
                         tabBarIcon: ({ size, color }) => (
-                            <BarChart3 size={size} color={color} />
+                            <ChartPie size={size} color={color} />
                         )
                     }}
                 />

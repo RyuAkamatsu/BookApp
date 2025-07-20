@@ -25,6 +25,7 @@ export default function ManualBookLookupScreen() {
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const commonStyles = getCommonStyles(theme);
+    const styles = getStyles(theme);
 
     const handleSearch = async () => {
         if (!searchQuery.trim()) {
@@ -241,7 +242,7 @@ export default function ManualBookLookupScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
     backButton: {
         width: 40,
         height: 40,

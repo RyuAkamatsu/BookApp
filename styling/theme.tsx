@@ -284,9 +284,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     React.useEffect(() => {
         const loadThemeMode = async () => {
-            const storedMode = await getStoredThemeMode();
-            setThemeMode(storedMode);
-            setIsLoading(false);
+            try {
+                const storedMode = await getStoredThemeMode();
+                setThemeMode(storedMode);
+            } catch (error) {
+                console.error('Error loading theme mode:', error);
+                setThemeMode('system');
+            } finally {
+                setIsLoading(false);
+            }
         };
         loadThemeMode();
     }, []);
@@ -327,7 +333,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 export const useTheme = () => {
     const context = useContext(ThemeContext);
     if (context === undefined) {
-        throw new Error('useTheme must be used within a ThemeProvider');
+        console.error('useTheme must be used within a ThemeProvider');
+        // Return a default theme to prevent crashes
+        return {
+            theme: lightTheme,
+            themeMode: 'system' as ThemeMode,
+            updateThemeMode: async () => {},
+            isLoading: false,
+            isDark: false,
+            systemColorScheme: 'light',
+        };
     }
     return context;
 };

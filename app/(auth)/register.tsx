@@ -18,6 +18,7 @@ import { useTheme, getCommonStyles } from '@/styling/theme';
 export default function RegisterScreen() {
     const { theme } = useTheme();
     const commonStyles = getCommonStyles(theme);
+    const styles = getStyles(theme);
 
     const { setUser } = useAuth();
 
@@ -207,7 +208,7 @@ export default function RegisterScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,

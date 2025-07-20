@@ -8,7 +8,7 @@ export default function RootLayout() {
     return (
         <ThemeProvider>
             <AuthProvider>
-            <StatusBar style="auto" />
+                <StatusBar style="auto" />
                 <Stack>
                     <Stack.Screen
                         name="(auth)"

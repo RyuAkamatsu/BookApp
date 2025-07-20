@@ -9,6 +9,7 @@ import {
     Dimensions,
     RefreshControl,
 } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Book, Search, Filter, Library, Star, BookmarkPlus, MoveHorizontal as MoreHorizontal, Camera, Plus } from 'lucide-react-native';
@@ -16,7 +17,6 @@ import { database, BookRecord } from '@/utils/database';
 import { useTheme, getCommonStyles } from '@/styling/theme';
 
 const { width: screenWidth } = Dimensions.get('window');
-const cardWidth = (screenWidth - (getCommonStyles(useTheme()).spacing.xl * 2) - getCommonStyles(useTheme()).spacing.md) / 2;
 
 interface LibraryInfo {
   id: string;
@@ -27,6 +27,8 @@ interface LibraryInfo {
 export default function LibraryIndexTab() {
     const { theme } = useTheme();
     const commonStyles = getCommonStyles(theme);
+    const styles = getStyles(theme);
+    const cardWidth = (screenWidth - (theme.spacing.xl * 2) - theme.spacing.md) / 2;
     const [books, setBooks] = useState<BookRecord[]>([]);
     const [libraries, setLibraries] = useState<LibraryInfo[]>([]);
     const [selectedLibrary, setSelectedLibrary] = useState<string | null>(null);
@@ -102,7 +104,7 @@ export default function LibraryIndexTab() {
 
     const openBookDetails = (book: BookRecord) => {
         router.push({
-            pathname: '/(tabs)/library/book-details',
+            pathname: '/(protected)/[bookId]',
             params: { bookId: book.id }
         });
     };
@@ -296,7 +298,7 @@ export default function LibraryIndexTab() {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
     headerButton: {
         width: 44,
         height: 44,
