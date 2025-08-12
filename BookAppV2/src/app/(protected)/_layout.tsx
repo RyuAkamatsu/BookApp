@@ -1,4 +1,3 @@
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { AuthContext } from "@/utils/context/authContext";
 import { Redirect, Stack } from "expo-router";
@@ -6,22 +5,34 @@ import { useContext } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useTheme } from "react-native-paper";
+import { SearchBar } from "@/components/SearchBar";
+import { Book } from "@/utils/service/bookService";
 
 function CustomHeader() {
     const theme = useTheme();
     const authContext = useContext(AuthContext);
 
+    // Handle book selection
+    const handleBookSelect = (book: Book) => {
+        console.log('Selected book:', book);
+        // TODO: Navigate to book details or add to library
+    };
+
+    // Handle camera option
+    const handleCameraOption = () => {
+        console.log('Camera option selected');
+        // TODO: Implement camera functionality
+    };
+
     return (
         <ThemedView style={styles.header}>
             {/* Search Bar - 80% width */}
             <View style={styles.searchContainer}>
-                <MaterialCommunityIcons 
-                    name="magnify" 
-                    size={20} 
-                    color={theme.colors.onSurface} 
-                    style={styles.searchIcon}
+                <SearchBar
+                    onBookSelect={handleBookSelect}
+                    onCameraOption={handleCameraOption}
+                    style={styles.searchBar}
                 />
-                <ThemedText style={styles.searchText}>Search for a book</ThemedText>
             </View>
             
             {/* User Component - 20% width */}
@@ -80,21 +91,10 @@ const styles = StyleSheet.create({
     },
     searchContainer: {
         flex: 0.8, // 80% width
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.05)',
-        borderRadius: 20,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
         marginRight: 12,
     },
-    searchIcon: {
-        marginRight: 8,
-    },
-    searchText: {
+    searchBar: {
         flex: 1,
-        fontSize: 16,
-        opacity: 0.7,
     },
     userContainer: {
         flex: 0.2, // 20% width

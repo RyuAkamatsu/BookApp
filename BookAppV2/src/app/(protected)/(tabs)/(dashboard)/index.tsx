@@ -1,13 +1,11 @@
-import { Alert, Modal, Pressable } from "react-native";
+import { Alert, Pressable } from "react-native";
 import { Link, useRouter } from "expo-router";
-import { useState } from "react";
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function IndexScreen() {
     const router = useRouter();
     const canGoBack = router.canGoBack();
-    const [modalVisible, setModalVisible] = useState(false);
 
     // https://reactnative.dev/docs/alert
     const handleOpenAlert = () => {
@@ -39,41 +37,6 @@ export default function IndexScreen() {
                     <ThemedText>Back</ThemedText>
                 </Pressable>
             ) : null}
-            <Pressable onPress={() => handleOpenAlert()}>
-                <ThemedText>Open Alert</ThemedText>
-            </Pressable>
-            <Pressable onPress={() => setModalVisible(true)}>
-                <ThemedText>Open RN Modal</ThemedText>
-            </Pressable>
-            <Link href="/modal" push asChild>
-                <Pressable>
-                    <ThemedText>Open Router Modal</ThemedText>
-                </Pressable>
-            </Link>
-            <Link href="/modal-with-stack" push asChild>
-                <Pressable>
-                    <ThemedText>Open Router Modal (Stack)</ThemedText>
-                </Pressable>
-            </Link>
-            {/* https://reactnative.dev/docs/modal */}
-            <Modal
-                visible={modalVisible}
-                animationType="slide"
-                transparent
-                // presentationStyle="pageSheet"
-                onRequestClose={() => {
-                    setModalVisible(false);
-                }}
-            >
-                <ThemedView>
-                    <ThemedText>
-                        A custom styled modal!
-                    </ThemedText>
-                    <Pressable onPress={() => { setModalVisible(false); }}>
-                        <ThemedText>Close</ThemedText>
-                    </Pressable>
-                </ThemedView>
-            </Modal>
         </ThemedView>
     );
 }
