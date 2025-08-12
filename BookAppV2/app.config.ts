@@ -1,11 +1,11 @@
 export default {
     expo: {
-        name: process.env.APP_NAME || "Hope To Connect",
-        slug: "com.hope-to-connect.app",
+        name: process.env.APP_NAME || "Book Nook",
+        slug: "com.booknook.app",
         version: "1.0.0",
         orientation: "portrait",
         icon: "./assets/images/icon.png",
-        scheme: "hopetoconnect",
+        scheme: "booknook",
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
         ios: {

@@ -22,6 +22,10 @@ export default function ThemeTestScreen() {
             >
                 <ThemedText style={{ color: 'white' }}>Toggle Theme</ThemedText>
             </Pressable>
+
+            <Pressable onPress={authState.logOut}>
+                <ThemedText>Log Out!</ThemedText>
+            </Pressable>
         </ThemedView>
     );
 }

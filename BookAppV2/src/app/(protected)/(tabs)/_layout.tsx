@@ -9,14 +9,13 @@ export default function BottomTabsLayout() {
             backBehavior="order"
         >
             <Tabs.Screen
-                name="(home)"
+                name="(dashboard)"
                 options={{
                     title: "Home",
-                    headerShown: false,
                     tabBarLabel: "Index",
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons
-                            name="numeric-1-box-outline"
+                            name="home"
                             size={size}
                             color={color}
                         />
@@ -24,14 +23,13 @@ export default function BottomTabsLayout() {
                 }}
             />
             <Tabs.Screen
-                name="second"
+                name="my-library"
                 options={{
-                    title: "Second",
-                    headerShown: false,
+                    title: "My Library",
                     popToTopOnBlur: true,
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons
-                            name="numeric-2-box-outline"
+                            name="book-open-page-variant"
                             size={size}
                             color={color}
                         />
@@ -39,12 +37,12 @@ export default function BottomTabsLayout() {
                 }}
             />
             <Tabs.Screen
-                name="third"
+                name="statistics"
                 options={{
-                    title: "Third",
+                    title: "Statistics",
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons
-                            name="numeric-3-box-outline"
+                            name="chart-box-outline"
                             size={size}
                             color={color}
                         />
@@ -52,17 +50,30 @@ export default function BottomTabsLayout() {
                 }}
             />
             <Tabs.Screen
-                name="fourth"
+                name="clubs"
                 options={{
                     tabBarBadge: 2,
                     tabBarBadgeStyle: {
                         backgroundColor: "tomato",
                         color: "white",
                     },
-                    title: "Fourth",
+                    title: "Clubs",
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons
-                            name="numeric-4-box-outline"
+                            name="account-group-outline"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="theme-test"
+                options={{
+                    title: "Theme Test",
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons
+                            name="palette-outline"
                             size={size}
                             color={color}
                         />
